@@ -332,3 +332,4 @@ Below the globe the page continues in the same world: black ground, white ink, G
 - Links and the author's name come from `src/site.ts`. A link left empty is not shown.
 - The header's introduction carries an "About this project" link, since the desktop layout fills exactly one screen and gives no other hint that the page continues.
 - Keys: once the page is scrolled past the first screen, keys belong to the page. Up and down turn the globe only when it has focus; otherwise they scroll.
+- Wheel: over the globe the scroll wheel zooms. It scrolls the page instead when the globe is not fully in view, or when the globe is fully zoomed out and the wheel moves down, so the text below stays reachable.

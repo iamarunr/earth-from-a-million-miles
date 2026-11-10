@@ -488,14 +488,26 @@ export default function EarthView({ s }: { s: EarthDay }) {
     }
   }, [selectedId, setSelectedId])
 
-  // Scrolling over the globe zooms it, unless the page itself needs the scroll.
+  // Scrolling over the globe zooms it. The page keeps the scroll when the globe
+  // is not fully in view, and when it is already zoomed all the way out and the
+  // reader scrolls down, so the text below is never out of reach.
+  const lastZoomWheel = useRef(0)
   useEffect(() => {
     const face = faceRef.current
     if (!face) return
     const onWheel = (e: WheelEvent) => {
-      const pageScrolls = document.documentElement.scrollHeight > window.innerHeight + 1
-      if (flat || (pageScrolls && !e.ctrlKey)) return
+      if (flat) return
+      if (!e.ctrlKey) {
+        const box = face.getBoundingClientRect()
+        const inView = box.top >= -1 && box.bottom <= window.innerHeight + 1
+        // A zoom-out that reaches the limit should not spill into a page scroll.
+        const justZoomed = e.timeStamp - lastZoomWheel.current < 450
+        const zoomedIn = view.current.zoomTo > 1.01
+        const wantsIn = e.deltaY < 0 && window.scrollY <= 2
+        if (!inView || !(zoomedIn || wantsIn || justZoomed)) return
+      }
       e.preventDefault()
+      lastZoomWheel.current = e.timeStamp
       zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)))
     }
     face.addEventListener('wheel', onWheel, { passive: false })
