@@ -20,7 +20,13 @@ No API key is needed.
 
 ## Deploying
 
-NASA's image server sends no CORS headers, so a browser cannot load its photos into WebGL directly. In development, `vite.config.ts` proxies `/epic-archive/*` to `https://epic.gsfc.nasa.gov/archive/*`. A deployed site needs the same path served by a small serverless function or rewrite rule. Without it, or without WebGL2, the page falls back to showing the photographs themselves.
+The site runs on Cloudflare Workers: the built files in `dist` are served as static assets, and a small Worker ([worker/index.js](worker/index.js)) handles one extra path.
+
+NASA's image server sends no CORS headers, so a browser cannot load its photos into WebGL directly. The Worker serves `/epic-archive/*` from `https://epic.gsfc.nasa.gov/archive/*` (EPIC natural-colour photos only) and caches each photo, since published photos never change. In development `vite.config.ts` proxies the same path. Without the proxy, or without WebGL2, the page falls back to showing the photographs themselves.
+
+- `npm run preview:worker` builds the site and runs it locally exactly as Cloudflare will.
+- `npm run deploy` builds and publishes from your machine (needs `npx wrangler login` once).
+- To deploy on every push instead, connect the GitHub repository in the Cloudflare dashboard (Workers & Pages → Create → Import a repository) with build command `npm run build` and deploy command `npx wrangler deploy`.
 
 ## Credits
 

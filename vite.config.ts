@@ -3,8 +3,8 @@ import { defineConfig } from 'vite'
 
 // NASA's image server sends no CORS headers, so a browser cannot load its
 // photos into WebGL directly. In development the photos for the 3D globe are
-// fetched through this same-origin proxy. A deployed site needs an equivalent
-// (for example a small serverless function).
+// fetched through this same-origin proxy. On the deployed site the Cloudflare
+// Worker in worker/index.js does the same job.
 const epicProxy = {
   '/epic-archive': {
     target: 'https://epic.gsfc.nasa.gov',

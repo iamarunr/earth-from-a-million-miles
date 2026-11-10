@@ -1,0 +1,12 @@
+{
+  "name": "earth-from-a-million-miles",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // Photos go to the worker; every other address is served from ./dist.
+    "run_worker_first": ["/epic-archive/*"]
+  }
+}
