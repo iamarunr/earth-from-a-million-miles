@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "id": "EONET_FIRE", "title": "Outback Wildfire", "closed": null,
+      "categories": [{ "id": "wildfires", "title": "Wildfires" }],
+      "sources": [{ "id": "IRWIN", "url": "https://example.org/fire" }],
+      "geometry": [{ "date": "2026-11-05T12:00:00Z", "type": "Point", "coordinates": [134, -22], "magnitudeValue": 1200, "magnitudeUnit": "acres" }]
+    },
+    {
+      "id": "EONET_STORM", "title": "Typhoon Testa", "closed": null,
+      "categories": [{ "id": "severeStorms", "title": "Severe Storms" }],
+      "sources": [{ "id": "JTWC", "url": "https://example.org/typhoon" }],
+      "geometry": [
+        { "date": "2026-11-04T00:00:00Z", "type": "Point", "coordinates": [152, 12], "magnitudeValue": 45, "magnitudeUnit": "kts" },
+        { "date": "2026-11-06T00:00:00Z", "type": "Point", "coordinates": [146, 16], "magnitudeValue": 90, "magnitudeUnit": "kts" },
+        { "date": "2026-11-09T00:00:00Z", "type": "Point", "coordinates": [120, 25], "magnitudeValue": 60, "magnitudeUnit": "kts" }
+      ]
+    },
+    {
+      "id": "EONET_FLOOD", "title": "Flood in Fiji", "closed": "2026-11-06T00:00:00Z",
+      "categories": [{ "id": "floods", "title": "Floods" }],
+      "sources": [{ "id": "GDACS", "url": "https://example.org/flood" }],
+      "geometry": [{ "date": "2026-11-03T00:00:00Z", "type": "Point", "coordinates": [178, -17], "magnitudeValue": null, "magnitudeUnit": null }]
+    },
+    {
+      "id": "EONET_FAR", "title": "Prairie Wildfire", "closed": null,
+      "categories": [{ "id": "wildfires", "title": "Wildfires" }],
+      "sources": [{ "id": "IRWIN", "url": "https://example.org/prairie" }],
+      "geometry": [{ "date": "2026-11-05T00:00:00Z", "type": "Point", "coordinates": [-100, 40], "magnitudeValue": null, "magnitudeUnit": null }]
+    }
+  ]
+}

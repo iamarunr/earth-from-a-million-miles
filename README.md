@@ -28,6 +28,23 @@ NASA's image server sends no CORS headers, so a browser cannot load its photos i
 - `npm run deploy` builds and publishes from your machine (needs `npx wrangler login` once).
 - To deploy on every push instead, connect the GitHub repository in the Cloudflare dashboard. On Cloudflare Pages, set build command `npm run build` and build output directory `dist`; the proxy then runs from [functions/epic-archive](functions/epic-archive). On Workers, set build command `npm run build` and deploy command `npx wrangler deploy`.
 
+## Testing
+
+- `npm test` runs the unit tests (Vitest): where a place lands in a photograph, reading NASA's two services, date handling, and the photo proxy's rules.
+- `npm run test:e2e` builds the site and drives it in a real browser (Playwright). The first time, run `npx playwright install` to fetch the browsers.
+- `npm run test:all` runs both.
+
+The end-to-end tests answer every NASA request from recorded data in `tests/e2e/fixtures`, so they pass offline and give the same result every day. They cover:
+
+- **The globe** (`globe.spec.ts`): loading, choosing a day, the day's photographs, playing, dragging, keys, zoom buttons and the scroll wheel.
+- **Events** (`events.spec.ts`): the list, the panel beside a mark, tapping a mark on the globe, and every way the panel closes.
+- **About and footer** (`about.spec.ts`).
+- **Fallbacks** (`fallback.spec.ts`): NASA's photo service down, the photo proxy missing, and a browser without WebGL2.
+- **Layout** (`layout.spec.ts`): nine screen sizes from a 320px phone to a 1920px desktop.
+- **Design rules** (`guidelines.spec.ts`): accessibility (axe, WCAG 2.1 AA), keyboard focus, contrast, the typeface and colour rules in `DESIGN.md`, and reduced motion.
+
+The full suite runs in Chromium. Firefox and WebKit (Safari's engine) run the tests tagged `@smoke`.
+
 ## Credits
 
 Imagery: NASA EPIC / NOAA DSCOVR. Events: NASA EONET.

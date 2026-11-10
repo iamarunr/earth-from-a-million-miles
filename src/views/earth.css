@@ -14,6 +14,8 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: 'head' 'stage' 'roll' 'events';
   background: #000; overflow-x: clip;
+  /* Panels open under the globe; the browser must not shift the page to compensate. */
+  overflow-anchor: none;
   color: var(--ink); font: 400 16px/1.3 var(--sans); letter-spacing: -0.01em;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -50,6 +52,7 @@
   transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 .datebar input { min-width: 0; font-variant-numeric: tabular-nums; caret-color: #fff; }
+.datebar input:focus-within { outline: 2px solid #fff; outline-offset: 3px; }
 .datebar button:hover:not(:disabled), .datebar input:hover, .chip:hover { border-color: #fff; }
 /* The two main actions carry a second, fainter ring. */
 .datebar .random, .play { outline: 1px solid rgba(255, 255, 255, 0.16); outline-offset: 5px; }
@@ -300,4 +303,11 @@
   .events { max-height: none; overflow: visible; }
   .zoom.corner { display: none; }
   .zoom.row { display: flex; }
+}
+
+/* ---- Narrowest phones: the times get a line of their own ---- */
+@media (max-width: 359px) {
+  .rollbar { flex-wrap: wrap; }
+  .gridtoggle { margin-left: auto; }
+  .edge { order: 3; flex: 1 0 100%; }
 }

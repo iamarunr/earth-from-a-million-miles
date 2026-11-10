@@ -21,7 +21,7 @@
 .about-rows { margin-top: 72px; }
 .about-rows article { display: grid; gap: 18px; padding: 30px 0 38px; border-top: 1px solid var(--faint); }
 .about h3 { font: 400 13px/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); }
-.about-rows article > div { display: grid; gap: 14px; max-width: 66ch; color: var(--soft); }
+.about-rows article > div { display: grid; gap: 14px; max-width: 52ch; color: var(--soft); }
 .about-rows p { text-wrap: pretty; }
 .about-rows b { color: var(--ink); font-weight: 400; white-space: nowrap; }
 

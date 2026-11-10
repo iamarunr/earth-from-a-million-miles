@@ -220,7 +220,8 @@ export function Strip({ s, label }: { s: EarthDay; label?: (i: number, time: str
             key={f.id}
             className={i === s.idx ? 'thumb on' : 'thumb'}
             onClick={() => s.goTo(i)}
-            aria-label={`Photo taken at ${fmtTime(f.time)} UTC`}
+            // The spoken name starts with the words shown under the thumbnail.
+            aria-label={`${label ? String(i + 1).padStart(2, '0') + ' ' : ''}${fmtTime(f.time)} UTC, photograph ${i + 1} of ${s.frames.length}`}
             aria-current={i === s.idx}
           >
             <img src={f.thumb} alt="" />

@@ -6,8 +6,10 @@ export default function App() {
   const s = useEarthDay()
   return (
     <>
-      <EarthView s={s} />
-      <About s={s} />
+      <main>
+        <EarthView s={s} />
+        <About s={s} />
+      </main>
       <Footer />
     </>
   )

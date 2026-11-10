@@ -6,7 +6,7 @@ export const EVENT_WINDOW_DAYS = 7
 const FRAME_MS = 260
 
 /** Latest available date on or before the one asked for. */
-function snapToAvailable(dates: string[], wanted: string): string {
+export function snapToAvailable(dates: string[], wanted: string): string {
   let lo = 0
   let hi = dates.length - 1
   let found = dates[0]
