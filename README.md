@@ -26,7 +26,7 @@ NASA's image server sends no CORS headers, so a browser cannot load its photos i
 
 - `npm run preview:worker` builds the site and runs it locally exactly as Cloudflare will.
 - `npm run deploy` builds and publishes from your machine (needs `npx wrangler login` once).
-- To deploy on every push instead, connect the GitHub repository in the Cloudflare dashboard (Workers & Pages → Create → Import a repository) with build command `npm run build` and deploy command `npx wrangler deploy`.
+- To deploy on every push instead, connect the GitHub repository in the Cloudflare dashboard. On Cloudflare Pages, set build command `npm run build` and build output directory `dist`; the proxy then runs from [functions/epic-archive](functions/epic-archive). On Workers, set build command `npm run build` and deploy command `npx wrangler deploy`.
 
 ## Credits
 
