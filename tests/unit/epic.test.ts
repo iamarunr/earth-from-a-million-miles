@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { SAMPLE_DATE, SAMPLE_FRAMES, diskRadius, fetchDates, fetchFrames, loadSampleFrames, project, type Frame } from '../../src/lib/epic'
+import { SAMPLE_DATE, SAMPLE_FRAMES, diskRadius, fetchDates, fetchFrames, loadSampleFrames, prefetchFrames, project, type Frame } from '../../src/lib/epic'
 
 const frame: Frame = {
   id: 'f',
@@ -111,6 +111,28 @@ describe('fetchFrames', () => {
     await fetchFrames('2025-06-02')
     await fetchFrames('2025-06-02')
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses a day asked for early instead of asking again', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(raw)))
+    vi.stubGlobal('fetch', fetchMock)
+    prefetchFrames('2025-07-03')
+    prefetchFrames('2025-07-03')
+    const frames = await fetchFrames('2025-07-03')
+    expect(frames).toHaveLength(2)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks again when the early request failed', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 503 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(raw)))
+    vi.stubGlobal('fetch', fetchMock)
+    prefetchFrames('2025-07-04')
+    const frames = await fetchFrames('2025-07-04')
+    expect(frames).toHaveLength(2)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('fails with the status when NASA answers with an error', async () => {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FIRST_DATE, SAMPLE_DATE, fetchDates, fetchFrames, project, loadSampleFrames, type Frame } from './lib/epic'
+import { FIRST_DATE, SAMPLE_DATE, fetchDates, fetchFrames, prefetchFrames, project, loadSampleFrames, type Frame } from './lib/epic'
 import { fetchEvents, positionAt, type NaturalEvent } from './lib/eonet'
 
 export const EVENT_WINDOW_DAYS = 7
@@ -98,10 +98,12 @@ export function useEarthDay() {
 
   useEffect(() => {
     const ctrl = new AbortController()
+    const wanted = new URLSearchParams(location.search).get('date')
+    // A link to a particular day: ask for its photos at the same time as the list of days.
+    if (wanted && /^\d{4}-\d{2}-\d{2}$/.test(wanted) && wanted >= FIRST_DATE) prefetchFrames(wanted)
     fetchDates(ctrl.signal)
       .then((list) => {
         setDates(list)
-        const wanted = new URLSearchParams(location.search).get('date')
         pickDate(wanted && /^\d{4}-\d{2}-\d{2}$/.test(wanted) ? wanted : list[list.length - 1], list)
       })
       .catch((e) => {

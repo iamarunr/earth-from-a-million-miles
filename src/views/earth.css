@@ -8,9 +8,11 @@
   --panel: #0e0e0e; --accent: #a9cbff; --c: #ffd60a;
   --sans: 'Geist Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Side gutters: never narrower than a phone's notch or rounded corner needs. */
+  --gut: 20px; --pl: max(var(--gut), env(safe-area-inset-left)); --pr: max(var(--gut), env(safe-area-inset-right));
   color-scheme: dark;
   display: grid; gap: 28px; min-height: 100dvh;
-  padding: max(26px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  padding: max(26px, env(safe-area-inset-top)) var(--pr) 0 var(--pl);
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: 'head' 'stage' 'roll' 'events';
   background: #000; overflow-x: clip;
@@ -65,7 +67,8 @@
 /* ---- The globe ---- */
 .stage { grid-area: stage; isolation: isolate; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; min-height: 0; }
 .face {
-  position: relative; width: 100%; max-width: 640px; aspect-ratio: 1; border-radius: 50%;
+  /* Never taller than the window, so a phone held sideways still shows the whole planet. */
+  position: relative; width: 100%; max-width: min(640px, max(240px, calc(100svh - 32px))); aspect-ratio: 1; border-radius: 50%;
   cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
 }
 .face { scroll-margin-top: 16px; }
@@ -139,9 +142,35 @@
 /* ---- The day's photographs ---- */
 .roll {
   grid-area: roll; min-width: 0; border-top: 1px solid var(--faint);
-  margin: 0 calc(-1 * max(20px, env(safe-area-inset-right))) 0 calc(-1 * max(20px, env(safe-area-inset-left)));
+  margin: 0 calc(-1 * var(--pr)) 0 calc(-1 * var(--pl));
 }
-.rollbar { display: flex; align-items: center; gap: 14px; padding: 14px 20px 0; }
+/* The scroll cue rests on the line under the globe. */
+.roll { position: relative; }
+.cue {
+  position: absolute; left: 50%; top: 0; z-index: 2; translate: -50% -50%;
+  display: inline-flex; align-items: center; gap: 9px; height: 30px; padding: 0 13px 0 15px;
+  border: 1px solid var(--line); border-radius: 999px; background: #000; color: var(--soft);
+  font: 400 11px/1 var(--sans); text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s;
+}
+/* A finger-sized target around the small pill. */
+.cue::after { content: ''; position: absolute; inset: -8px -6px; }
+.cue:hover { border-color: #fff; color: #fff; }
+.cue svg { width: 9px; height: 14px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.cue-arrow { display: none; }
+.cue-wheel { animation: cue-wheel 1.9s var(--ease) infinite; }
+.cue-arrow path { animation: cue-arrow 1.9s var(--ease) infinite; }
+@keyframes cue-wheel { 0% { transform: translateY(-1px); opacity: 0; } 25% { opacity: 1; } 70%, 100% { transform: translateY(6px); opacity: 0; } }
+@keyframes cue-arrow { 0%, 100% { transform: translateY(-1.5px); } 50% { transform: translateY(1.5px); } }
+/* Touch screens have no wheel: show an arrow instead of the mouse. */
+@media (hover: none), (pointer: coarse) {
+  .cue-mouse { display: none; }
+  .cue-arrow { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cue-wheel, .cue-arrow path { animation: none; }
+}
+.rollbar { display: flex; align-items: center; gap: 14px; padding: 14px var(--pr) 0 var(--pl); }
 .edge { flex: 1; min-width: 0; color: var(--dim); line-height: 1.3; text-wrap: balance; }
 .play {
   display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; margin: 6px;
@@ -156,7 +185,7 @@
 }
 .gridtoggle:hover { border-color: #fff; }
 .gridtoggle[aria-pressed='true'] { background: #fff; border-color: #fff; color: #000; }
-.strip { display: flex; gap: 6px; overflow-x: auto; padding: 14px 20px 18px; scrollbar-width: none; }
+.strip { display: flex; gap: 6px; overflow-x: auto; padding: 14px var(--pr) 18px var(--pl); scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 .thumb {
   display: flex; flex: 1 0 54px; flex-direction: column; align-items: center; gap: 8px; max-width: 92px;
@@ -165,7 +194,7 @@
   transition: color 0.2s;
 }
 .thumb b { font-weight: 400; }
-.thumb img { display: block; width: 100%; aspect-ratio: 1; border-radius: 50%; opacity: 0.45; transition: opacity 0.2s; }
+.thumb img { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 50%; opacity: 0.45; transition: opacity 0.2s; }
 .thumb:hover img, .thumb.on img { opacity: 1; }
 .thumb.on { color: #fff; }
 .thumb.on img { outline: 1px solid #fff; outline-offset: 2px; }
@@ -219,9 +248,8 @@
 .slip-close:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
 
 /* ---- Tablet: globe beside the text ---- */
-@media (min-width: 720px) and (max-width: 1099px) {
-  .earth { gap: 28px 36px; padding-left: 32px; padding-right: 32px; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); grid-template-areas: 'head stage' 'roll roll' 'events events'; align-items: center; }
-  .roll { margin: 0 -32px; }
+@media (min-width: 720px) and (max-width: 1099px), (min-width: 540px) and (max-width: 719px) and (orientation: landscape) and (max-height: 500px) {
+  .earth { --gut: 32px; gap: 28px 36px; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); grid-template-areas: 'head stage' 'roll roll' 'events events'; align-items: center; }
   .head h1 { font-size: clamp(2.4rem, 5.6vw, 3.3rem); }
   .events { max-height: none; overflow: visible; columns: 2; column-gap: 24px; }
   .events li { break-inside: avoid; }
@@ -230,7 +258,7 @@
 /* ---- Desktop: everything in one screen ---- */
 @media (min-width: 1100px) {
   .earth {
-    height: 100dvh; gap: 22px 40px; padding: 28px 44px 0; overflow: hidden;
+    --gut: 44px; height: 100dvh; gap: 22px 40px; padding-top: 28px; overflow: hidden;
     grid-template-columns: minmax(250px, 1fr) minmax(0, 1.7fr) minmax(260px, 1fr);
     grid-template-rows: minmax(0, 1fr) auto;
     grid-template-areas: 'head stage events' 'roll roll roll';
@@ -241,8 +269,6 @@
   .head h1 { font-size: clamp(3rem, 4.5vw, 4.6rem); }
   .stage { justify-content: center; container-type: size; }
   .face { width: min(100cqw, calc(100cqh - 62px)); max-width: none; }
-  .roll { margin: 0 -44px; }
-  .rollbar, .strip { padding-left: 44px; padding-right: 44px; }
   .strip { justify-content: center; }
   .events-col { padding-bottom: 0; }
   .events {
@@ -254,10 +280,8 @@
 
 /* ---- Narrower desktops: a wider text column and a smaller title ---- */
 @media (min-width: 1100px) and (max-width: 1299px) {
-  .earth { gap: 22px 32px; padding-left: 36px; padding-right: 36px; grid-template-columns: minmax(280px, 1.15fr) minmax(0, 1.5fr) minmax(250px, 1fr); }
+  .earth { --gut: 36px; gap: 22px 32px; grid-template-columns: minmax(280px, 1.15fr) minmax(0, 1.5fr) minmax(250px, 1fr); }
   .head h1 { font-size: 2.6rem; }
-  .roll { margin: 0 -36px; }
-  .rollbar, .strip { padding-left: 36px; padding-right: 36px; }
 }
 
 /* ---- Small laptops: the same one-screen layout, set a little tighter ---- */
@@ -285,7 +309,7 @@
 }
 
 /* ---- Phone: the globe comes straight after the title ---- */
-@media (max-width: 719px) {
+@media (max-width: 539px), (max-width: 719px) and (orientation: portrait), (max-width: 719px) and (min-height: 501px) {
   .earth { display: flex; flex-direction: column; gap: 0; }
   .head { display: contents; }
   .head h1 { order: 1; }
@@ -310,4 +334,17 @@
   .rollbar { flex-wrap: wrap; }
   .gridtoggle { margin-left: auto; }
   .edge { order: 3; flex: 1 0 100%; }
+}
+
+/* ---- Phones held sideways: the globe starts level with the title, not below it ---- */
+@media (min-width: 540px) and (max-width: 1099px) and (orientation: landscape) and (max-height: 500px) {
+  .earth { align-items: start; }
+  .head h1 { font-size: clamp(2rem, 5vw, 2.6rem); }
+  .date { margin-top: 20px; }
+  .caption { margin-top: 18px; }
+  /* No room under the globe: the event panel is pinned beside it instead. */
+  .slip.docked {
+    position: fixed; left: var(--pl); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 5;
+    width: min(272px, 44vw); max-height: calc(100svh - 32px); overflow-y: auto;
+  }
 }

@@ -224,7 +224,7 @@ export function Strip({ s, label }: { s: EarthDay; label?: (i: number, time: str
             aria-label={`${label ? String(i + 1).padStart(2, '0') + ' ' : ''}${fmtTime(f.time)} UTC, photograph ${i + 1} of ${s.frames.length}`}
             aria-current={i === s.idx}
           >
-            <img src={f.thumb} alt="" />
+            <img src={f.thumb} alt="" width="120" height="120" decoding="async" />
             <span>{label ? label(i, fmtTime(f.time)) : fmtTime(f.time)}</span>
           </button>
         ))}

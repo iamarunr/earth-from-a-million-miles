@@ -138,6 +138,19 @@ export default function EarthView({ s }: { s: EarthDay }) {
     }
   }, [s.ready, s.frames])
 
+  // Nothing is drawn while the globe is scrolled out of sight.
+  const onScreen = useRef(true)
+  useEffect(() => {
+    const face = faceRef.current
+    if (!face || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen.current = entry.isIntersecting
+      if (entry.isIntersecting) view.current.dirty = true
+    })
+    io.observe(face)
+    return () => io.disconnect()
+  }, [])
+
   useEffect(() => {
     let raf = 0
     let last = performance.now()
@@ -155,6 +168,8 @@ export default function EarthView({ s }: { s: EarthDay }) {
       const gl = glRef.current
       const overlay = marksRef.current
       if (!face || !gl || !overlay) return
+      // Off screen, only a turn already under way is finished; the idle spin waits.
+      if (!onScreen.current && !v.fly) return
 
       if (v.fly) {
         const t = Math.min(1, (now - v.fly.t0) / (calm() ? 1 : 900))
@@ -729,6 +744,17 @@ export default function EarthView({ s }: { s: EarthDay }) {
       </div>
 
       <section className="roll" aria-label="The day’s photos">
+        {/* Sits on the line at the foot of the first screen: there is more below. */}
+        <a className="cue" href="#about" aria-label="Scroll down to read about this project">
+          <span>Scroll</span>
+          <svg className="cue-mouse" viewBox="0 0 14 22" aria-hidden="true">
+            <rect x="0.75" y="0.75" width="12.5" height="20.5" rx="6.25" />
+            <path className="cue-wheel" d="M7 5.5v3.5" />
+          </svg>
+          <svg className="cue-arrow" viewBox="0 0 14 22" aria-hidden="true">
+            <path d="M7 3.5v15M2 13.5l5 5 5-5" />
+          </svg>
+        </a>
         <div className="rollbar">
           <button
             className="play"

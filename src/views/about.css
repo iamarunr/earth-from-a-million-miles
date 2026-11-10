@@ -4,10 +4,10 @@
   --ink: #fff; --soft: #c4c4c4; --dim: #8f8f8f;
   --line: rgba(255, 255, 255, 0.24); --faint: rgba(255, 255, 255, 0.14);
   --sans: 'Geist Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --pad: max(20px, env(safe-area-inset-left));
+  --gut: 20px; --pad: max(var(--gut), env(safe-area-inset-left));
   color-scheme: dark; background: #000; color: var(--ink);
   font: 400 16px/1.5 var(--sans); letter-spacing: -0.01em;
-  padding-left: var(--pad); padding-right: max(20px, env(safe-area-inset-right));
+  padding-left: var(--pad); padding-right: max(var(--gut), env(safe-area-inset-right));
 }
 .about ::selection, .foot ::selection { background: #fff; color: #000; }
 .about :focus-visible, .foot :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
@@ -60,7 +60,7 @@
 }
 
 @media (min-width: 720px) {
-  .about, .foot { --pad: 32px; padding-right: 32px; }
+  .about, .foot { --gut: 32px; }
   .about { padding-top: 120px; padding-bottom: 120px; }
   .about-rows article { grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 36px; padding: 34px 0 46px; }
   .about-days li { grid-template-columns: 196px minmax(0, 1fr); align-items: center; gap: 24px; }
@@ -68,7 +68,7 @@
   .foot-fine a { justify-self: end; margin-top: 0; }
 }
 @media (min-width: 1100px) {
-  .about, .foot { --pad: 44px; padding-right: 44px; }
+  .about, .foot { --gut: 44px; }
   .about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.7fr); column-gap: 40px; padding-top: 140px; }
   .about h2 { grid-column: 1; font-size: clamp(2.6rem, 3.6vw, 3.8rem); position: sticky; top: 44px; align-self: start; }
   .about-lead { grid-column: 2; margin-top: 0; max-width: 28ch; font-size: clamp(1.9rem, 2.6vw, 2.6rem); line-height: 1.1; }
@@ -79,5 +79,5 @@
   .foot-fine { margin-top: 120px; }
 }
 @media (min-width: 1100px) and (max-width: 1299px) {
-  .about, .foot { --pad: 36px; padding-right: 36px; }
+  .about, .foot { --gut: 36px; }
 }

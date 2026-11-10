@@ -11,6 +11,10 @@ const SIZES = [
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'large desktop', width: 1920, height: 1080 },
   { name: 'wide and short', width: 1280, height: 620 },
+  { name: 'phone sideways', width: 844, height: 390 },
+  { name: 'small phone sideways', width: 667, height: 375 },
+  { name: 'tablet sideways, large', width: 1366, height: 1024 },
+  { name: 'ultrawide', width: 3440, height: 1440 },
 ]
 
 const box = async (page: Page, selector: string) => (await page.locator(selector).first().boundingBox())!
@@ -30,6 +34,8 @@ for (const size of SIZES) {
       expect(f.x + f.width).toBeLessThanOrEqual(size.width + 0.5)
       expect(Math.abs(f.width - f.height)).toBeLessThan(1)
       expect(f.width).toBeGreaterThanOrEqual(Math.min(280, size.width - 40))
+      // And it is never taller than the window, whichever way the device is held.
+      expect(f.height).toBeLessThanOrEqual(size.height)
 
       // No text is clipped by its own box.
       const clipped = await page.evaluate(() =>
@@ -73,6 +79,31 @@ for (const size of SIZES) {
       expect(p.x + p.width).toBeLessThanOrEqual(size.width + 0.5)
       // The globe it points at is on screen too.
       await expect(face(page)).toBeInViewport({ ratio: 0.5 })
+    })
+
+    test('a scroll cue points to the reading below', async ({ page }) => {
+      await openGlobe(page, '/', { still: true })
+      const cue = page.getByRole('link', { name: 'Scroll down to read about this project' })
+      await expect(cue).toBeVisible()
+      const c = (await cue.boundingBox())!
+      expect(c.x).toBeGreaterThanOrEqual(0)
+      expect(c.x + c.width).toBeLessThanOrEqual(size.width + 0.5)
+      // It touches nothing else that can be pressed.
+      const covered = await page.evaluate(() => {
+        const r = document.querySelector('.cue')!.getBoundingClientRect()
+        return [...document.querySelectorAll<HTMLElement>('button, input, .thumb')]
+          .filter((el) => el.offsetParent !== null)
+          .filter((el) => {
+            const b = el.getBoundingClientRect()
+            return b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top
+          })
+          .map((el) => el.getAttribute('aria-label') || el.textContent!.trim().slice(0, 30))
+      })
+      expect(covered).toEqual([])
+      // Where the first screen is exactly one window tall, the cue is on it.
+      if (size.width >= 1100 && size.height >= 680) await expect(cue).toBeInViewport({ ratio: 1 })
+      await cue.click()
+      await expect(page.getByRole('heading', { name: 'About this project' })).toBeInViewport()
     })
 
     test('the About section and footer fit', async ({ page }) => {

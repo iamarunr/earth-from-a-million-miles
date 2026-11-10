@@ -44,11 +44,27 @@ export async function fetchDates(signal?: AbortSignal): Promise<string[]> {
 }
 
 const frameCache = new Map<string, Frame[]>()
+const early = new Map<string, Promise<RawFrame[]>>()
+
+/**
+ * Start fetching a day before it is known to be the one shown, so a link to a
+ * particular date does not wait for the list of all dates first.
+ */
+export function prefetchFrames(date: string) {
+  if (frameCache.has(date) || early.has(date)) return
+  const req = getJson<RawFrame[]>(`${BASE}/api/natural/date/${date}`)
+  early.set(date, req)
+  // A failure here is not an error yet: the real request will try again.
+  req.catch(() => early.delete(date))
+}
 
 export async function fetchFrames(date: string, signal?: AbortSignal): Promise<Frame[]> {
   const cached = frameCache.get(date)
   if (cached) return cached
-  const raw = await getJson<RawFrame[]>(`${BASE}/api/natural/date/${date}`, signal)
+  const url = `${BASE}/api/natural/date/${date}`
+  const raw = await (early.get(date)?.catch(() => getJson<RawFrame[]>(url, signal)) ?? getJson<RawFrame[]>(url, signal))
+  early.delete(date)
+  signal?.throwIfAborted()
   const frames = raw
     .map((f): Frame => {
       const [day] = f.date.split(' ')

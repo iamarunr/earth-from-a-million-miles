@@ -3,7 +3,7 @@ import { atTop, facing, openGlobe, settled } from './helpers'
 
 test('the introduction links down to the About section @smoke', async ({ page }) => {
   await openGlobe(page)
-  await page.getByRole('link', { name: 'About this project' }).click()
+  await page.getByRole('link', { name: 'About this project', exact: true }).click()
   await settled(page)
   await expect(page.getByRole('heading', { level: 2, name: 'About this project' })).toBeInViewport()
 })
