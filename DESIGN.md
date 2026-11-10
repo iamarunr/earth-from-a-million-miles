@@ -322,3 +322,13 @@ The day's photographs as a row of small round planets under a Faint hairline.
 - **Don't** use an event colour or Atmosphere Blue for text, borders or decoration.
 - **Don't** stack an uppercase label above a larger heading as a kicker. Labels belong to controls, chips, list headings and the terms in the event panel.
 - **Don't** add drop shadows to controls, rows or text blocks. The panel drop and the globe halo are the only two.
+
+## About section and footer
+
+Below the globe the page continues in the same world: black ground, white ink, Geist at weight 400, hairline rules.
+
+- **About** (`src/views/About.tsx`, `about.css`): a large heading, a lead statement at display size, then rows separated by faint rules. Each row is a small uppercase label beside body text in the soft ink, measure capped at 66ch. On desktop the heading stays pinned in the left column while the rows scroll. "Days worth seeing" uses outlined pills that load that date and return to the globe.
+- **Footer**: "Made by" label over the author's name at display size (up to 6rem), outlined pill links (portfolio, coffee, source), and a fine-print row. A single thin arc with a faint pale-blue glow rises from the bottom edge, in its own band below the fine print so no text crosses it.
+- Links and the author's name come from `src/site.ts`. A link left empty is not shown.
+- The header's introduction carries an "About this project" link, since the desktop layout fills exactly one screen and gives no other hint that the page continues.
+- Keys: once the page is scrolled past the first screen, keys belong to the page. Up and down turn the globe only when it has focus; otherwise they scroll.

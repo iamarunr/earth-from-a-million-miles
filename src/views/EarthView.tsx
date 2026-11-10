@@ -509,6 +509,12 @@ export default function EarthView({ s }: { s: EarthDay }) {
       const tag = (e.target as HTMLElement).tagName
       if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
       if ((tag === 'BUTTON' || tag === 'A') && e.key === ' ') return
+      // Once the reader has scrolled down to the text, keys belong to the page.
+      if (window.scrollY > window.innerHeight * 0.6) return
+      // Up and down scroll the page unless the globe itself has focus.
+      if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !flat && document.activeElement !== faceRef.current) {
+        if (document.documentElement.scrollHeight > window.innerHeight + 1) return
+      }
       const n = s.frames.length
       if (e.key === ' ') {
         e.preventDefault()
@@ -619,13 +625,14 @@ export default function EarthView({ s }: { s: EarthDay }) {
       : `Reconstructed from the day’s ${count === 1 ? 'one photograph' : `${count} photographs`}. Choose one below to see exactly what the camera saw.`
 
   return (
-    <div className={flat ? 'earth is-flat' : 'earth'}>
+    <div className={flat ? 'earth is-flat' : 'earth'} id="top">
       <header className="head">
         <h1>Earth, From a Million Miles</h1>
         <p className="lede">
           {flat
             ? 'Real photographs of the whole planet, taken from 1.5 million km away. Drag sideways to turn the day, then try a date that matters to you.'
-            : 'A globe made only from the photographs taken on one day, from 1.5 million km away. Drag it to spin it any way you like, then try a date that matters to you.'}
+            : 'A globe made only from the photographs taken on one day, from 1.5 million km away. Drag it to spin it any way you like, then try a date that matters to you.'}{' '}
+          <a href="#about">About this project</a>
         </p>
         <p className="date">{s.date ? fmtLongDate(s.date) : ' '}</p>
         <DateControls s={s} />
