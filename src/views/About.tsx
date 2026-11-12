@@ -6,6 +6,12 @@ import './about.css'
 
 /** Days in the archive that show something particular. */
 const DAYS: { date: string; what: string }[] = [
+  {
+    date: '2026-08-26',
+    what: 'A glacier and the slope beneath it give way in Langtang, Nepal. The flood runs about 100 km down the valley and kills hundreds of people. From this far away only the monsoon cloud shows; the flood itself is marked.',
+  },
+  { date: '2026-10-20', what: 'Super Typhoon Champi at full strength over the Philippine Sea, three days before it reaches Taiwan.' },
+  { date: '2026-10-08', what: 'Hurricane Isaias strengthens over the Gulf of Mexico, a day before it comes ashore on the northern Gulf coast.' },
   { date: '2017-08-21', what: 'The Moon’s shadow crosses the United States during a total solar eclipse.' },
   { date: '2024-04-08', what: 'The shadow again, this time from Mexico to eastern Canada.' },
   { date: '2023-06-21', what: 'June solstice. The Arctic is tipped towards the camera, in daylight all day.' },
@@ -125,7 +131,7 @@ export function About({ s }: { s: EarthDay }) {
             </p>
             <p>
               <Out href="https://eonet.gsfc.nasa.gov/">EONET</Out>, the Earth Observatory Natural Event Tracker,
-              gathers reports of wildfires, storms, volcanoes and sea ice from agencies around the world into one
+              gathers reports of wildfires, storms, floods, volcanoes and sea ice from agencies around the world into one
               list. The dots on the globe are those events, placed where they were on the day you chose.
             </p>
           </div>
@@ -151,7 +157,7 @@ export function About({ s }: { s: EarthDay }) {
           <div>
             <p>
               Play any day and you can watch the planet turn, weather systems drift, and the seasons tilt the poles in
-              and out of the light. A few days show something rarer.
+              and out of the light. A few days show something rarer, or something that was in the news.
             </p>
             <ul className="about-days">
               {DAYS.map((d) => (

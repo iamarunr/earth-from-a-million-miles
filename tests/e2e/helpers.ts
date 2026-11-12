@@ -8,7 +8,7 @@ const EVENTS = readFileSync(here('./fixtures/events.json'), 'utf8')
 const PHOTO = readFileSync(here('../../public/sample/earth-2026-11-07.jpg'))
 
 /** Days the pretend archive holds. There is a gap between June 2019 and February 2020. */
-export const DATES = ['2015-06-13', '2017-08-21', '2019-06-27', '2020-02-12', '2023-06-21', '2023-12-21', '2024-04-08', '2026-11-05', '2026-11-06', '2026-11-07']
+export const DATES = ['2015-06-13', '2017-08-21', '2019-06-27', '2020-02-12', '2023-06-21', '2023-12-21', '2024-04-08', '2026-08-26', '2026-10-08', '2026-10-20', '2026-11-05', '2026-11-06', '2026-11-07']
 export const LATEST = '2026-11-07'
 
 export interface MockOptions {

@@ -60,7 +60,17 @@ export function categoryStyle(id: string, fallbackLabel?: string) {
   return CATEGORY_STYLE[id] ?? { label: fallbackLabel ?? id, color: '#ffd166' }
 }
 
-function toPoint(g: RawGeometry): EventPoint | null {
+/**
+ * NASA published the outlines of floods numbered 1104004 to 1104198 (late June
+ * to early October 2026) with latitude and longitude the wrong way round, which
+ * put a flood in Nepal near the North Pole. Those are turned back here.
+ */
+export function isSwappedFlood(title: string): boolean {
+  const n = Number(/^Flood in .* (\d{7})$/.exec(title)?.[1])
+  return n >= 1104004 && n <= 1104198
+}
+
+function toPoint(g: RawGeometry, swapped = false): EventPoint | null {
   let lon: number
   let lat: number
   if (g.type === 'Point') {
@@ -71,6 +81,8 @@ function toPoint(g: RawGeometry): EventPoint | null {
     if (!ring?.length) return null
     lon = ring.reduce((s, c) => s + c[0], 0) / ring.length
     lat = ring.reduce((s, c) => s + c[1], 0) / ring.length
+    // A first value beyond ±90 can only be a longitude, so that outline is already right.
+    if (swapped && Math.abs(lon) <= 90) [lon, lat] = [lat, lon]
   }
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
   return {
@@ -112,7 +124,7 @@ export async function fetchEvents(date: string, days = 7, signal?: AbortSignal):
         sourceName: e.sources[0]?.id ?? null,
         closed: e.closed ? Date.parse(e.closed) : null,
         points: e.geometry
-          .map(toPoint)
+          .map((g) => toPoint(g, isSwappedFlood(e.title)))
           .filter((p): p is EventPoint => p !== null)
           .sort((a, b) => a.time - b.time),
       }

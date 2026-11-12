@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { categoryStyle, fetchEvents, positionAt, type NaturalEvent } from '../../src/lib/eonet'
+import { categoryStyle, fetchEvents, isSwappedFlood, positionAt, type NaturalEvent } from '../../src/lib/eonet'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -112,5 +112,51 @@ describe('categoryStyle', () => {
   })
   it('still labels a category it has never seen', () => {
     expect(categoryStyle('meteors', 'Meteors')).toEqual({ label: 'Meteors', color: '#ffd166' })
+  })
+})
+
+describe('floods NASA published with latitude and longitude swapped', () => {
+  const flood = (title: string, ring: number[][]) => ({
+    events: [
+      {
+        id: title,
+        title,
+        closed: null,
+        categories: [{ id: 'floods', title: 'Floods' }],
+        sources: [],
+        geometry: [{ date: '2026-08-25T20:00:00Z', type: 'Polygon', coordinates: [ring], magnitudeValue: null, magnitudeUnit: null }],
+      },
+    ],
+  })
+  const place = async (date: string, title: string, ring: number[][]) => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(flood(title, ring)))))
+    const [event] = await fetchEvents(date)
+    return event.points[0]
+  }
+
+  it('knows which floods are affected', () => {
+    expect(isSwappedFlood('Flood in Nepal 1104124')).toBe(true)
+    expect(isSwappedFlood('Flood in India, Nepal 1104198')).toBe(true)
+    expect(isSwappedFlood('Flood in Spain 1104199')).toBe(false)
+    expect(isSwappedFlood('Flood in Costa Rica 1104003')).toBe(false)
+    expect(isSwappedFlood('Typhoon Testa')).toBe(false)
+  })
+
+  it('puts the August 2026 flood in Nepal, not near the North Pole', async () => {
+    const p = await place('2026-08-26', 'Flood in Nepal 1104124', [[27, 85], [28, 86]])
+    expect(p.lat).toBeCloseTo(27.5)
+    expect(p.lon).toBeCloseTo(85.5)
+  })
+
+  it('leaves later floods as they came', async () => {
+    const p = await place('2026-10-11', 'Flood in Nepal 1104225', [[84, 28], [85, 28]])
+    expect(p.lat).toBeCloseTo(28)
+    expect(p.lon).toBeCloseTo(84.5)
+  })
+
+  it('leaves an affected flood alone once its outline is plainly the right way round', async () => {
+    const p = await place('2026-08-27', 'Flood in Philippines 1104130', [[120.6, 15.1]])
+    expect(p.lat).toBeCloseTo(15.1)
+    expect(p.lon).toBeCloseTo(120.6)
   })
 })
