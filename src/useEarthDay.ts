@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FIRST_DATE, SAMPLE_DATE, fetchDates, fetchFrames, prefetchFrames, project, loadSampleFrames, type Frame } from './lib/epic'
-import { LATELY_CATEGORIES, LATELY_DAYS, pickRecent, type Recent } from './lib/lately'
+import { DAYS, type See } from './days'
+import { LATELY_CATEGORIES, LATELY_DAYS, pickRecent, withPicked, type Recent } from './lib/lately'
 import { fetchEvents, positionAt, type NaturalEvent } from './lib/eonet'
 
 export const EVENT_WINDOW_DAYS = 7
@@ -66,16 +67,7 @@ function graticule(frame: Frame) {
 }
 
 /** Something on a chosen day for the globe to turn to once the day has loaded. */
-export interface Aim {
-  date: string
-  /** An event in NASA's tracker: the globe turns to it and opens its panel. */
-  eventId?: string
-  /** Where to turn if there is no event, or it cannot be found. */
-  lat?: number
-  lon?: number
-  /** A moment (UTC): the photograph taken closest to it is shown. */
-  time?: string
-}
+export type Aim = See & { date: string }
 
 export function useEarthDay() {
   const [dates, setDates] = useState<string[] | null>(null)
@@ -97,7 +89,7 @@ export function useEarthDay() {
   const [lately, setLately] = useState<Recent[] | null>(null)
 
   const pickDate = useCallback(
-    (wanted: string, list = dates, target?: Omit<Aim, 'date'>) => {
+    (wanted: string, list = dates, target?: See) => {
       if (!list?.length) return
       const snapped = snapToAvailable(list, wanted)
       setNotice(
@@ -122,8 +114,9 @@ export function useEarthDay() {
       .then((list) => {
         setDates(list)
         fetchEvents(list[list.length - 1], LATELY_DAYS, ctrl.signal, LATELY_CATEGORIES)
-          .then((ev) => setLately(pickRecent(ev, list)))
-          .catch((e) => e.name !== 'AbortError' && setLately([]))
+          .then((ev) => setLately(withPicked(pickRecent(ev, list, 8), DAYS, list)))
+          // Without the tracker, the days chosen by hand can still be offered.
+          .catch((e) => e.name !== 'AbortError' && setLately(withPicked([], DAYS, list)))
         pickDate(wanted && /^\d{4}-\d{2}-\d{2}$/.test(wanted) ? wanted : list[list.length - 1], list)
       })
       .catch((e) => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NaturalEvent } from '../../src/lib/eonet'
-import { pickRecent } from '../../src/lib/lately'
+import { pickRecent, withPicked } from '../../src/lib/lately'
 
 const event = (id: string, category: string, points: [string, string | null][]): NaturalEvent => ({
   id,
@@ -49,5 +49,30 @@ describe('pickRecent', () => {
       event('middle', 'severeStorms', [['2026-11-03', '90 kts']]),
     ]
     expect(pickRecent(list, DATES, 3).map((r) => r.id)).toEqual(['new-stronger', 'new-weaker', 'middle'])
+  })
+})
+
+describe('withPicked', () => {
+  const auto = ['a', 'b', 'c', 'd'].map((id, i) => ({ id, title: id, category: 'severeStorms', date: DATES[3 - i] }))
+  const day = (date: string, title?: string, eventId?: string) => ({ date, what: '', title, category: 'floods', see: eventId ? { eventId } : { lat: 1, lon: 2 } })
+
+  it('adds a recent day chosen by hand, in date order, without growing the row', () => {
+    const out = withPicked(auto, [day('2026-11-05', 'A flood')], DATES)
+    expect(out.map((r) => r.title)).toEqual(['a', 'A flood', 'b', 'c'])
+    expect(out[1]).toMatchObject({ category: 'floods', see: { lat: 1, lon: 2 } })
+  })
+
+  it('replaces the automatic entry for the same event', () => {
+    const out = withPicked(auto, [day('2026-11-01', 'Named by hand', 'b')], DATES)
+    expect(out.map((r) => r.title).sort()).toEqual(['Named by hand', 'a', 'c', 'd'])
+  })
+
+  it('leaves out days that are old, untitled, or missing from the archive', () => {
+    const out = withPicked(auto, [day('2026-08-26', 'Old'), day('2026-11-05'), day('2026-11-04', 'No photographs')], DATES)
+    expect(out.map((r) => r.title)).toEqual(['a', 'b', 'c', 'd'])
+  })
+
+  it('still offers the chosen days when the tracker gave nothing', () => {
+    expect(withPicked([], [day('2026-11-05', 'A flood')], DATES).map((r) => r.title)).toEqual(['A flood'])
   })
 })

@@ -694,7 +694,7 @@ export default function EarthView({ s }: { s: EarthDay }) {
           <ul>
             {s.lately?.map((r) => (
               <li key={r.id}>
-                <button data-cat={r.category} onClick={() => s.pickDate(r.date, undefined, { eventId: r.id })}>
+                <button data-cat={r.category} onClick={() => s.pickDate(r.date, undefined, r.see ?? { eventId: r.id })}>
                   <i />
                   {r.title}
                   <b>{fmtShortDay(r.date)}</b>

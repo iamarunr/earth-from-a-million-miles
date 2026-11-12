@@ -1,39 +1,9 @@
 import type { ReactNode } from 'react'
 import { SITE } from '../site'
-import { fmtLongDate, type Aim, type EarthDay } from '../useEarthDay'
+import { DAYS, type See } from '../days'
+import { fmtLongDate, type EarthDay } from '../useEarthDay'
 import { Icon } from './parts'
 import './about.css'
-
-/** Days in the archive that show something particular. */
-const DAYS: { date: string; what: string; see?: Omit<Aim, 'date'> }[] = [
-  {
-    date: '2026-08-26',
-    what: 'A glacier and the slope beneath it give way in Langtang, Nepal. The flood runs about 100 km down the valley and kills hundreds of people. From this far away only the monsoon cloud shows; the flood itself is marked.',
-    see: { eventId: 'EONET_23468', lat: 27.8, lon: 85.5 },
-  },
-  {
-    date: '2026-10-20',
-    what: 'Super Typhoon Champi at full strength over the Philippine Sea, three days before it reaches Taiwan.',
-    see: { eventId: 'EONET_25339' },
-  },
-  {
-    date: '2026-10-08',
-    what: 'Hurricane Isaias strengthens over the Gulf of Mexico, a day before it comes ashore on the northern Gulf coast.',
-    see: { eventId: 'EONET_25063' },
-  },
-  {
-    date: '2017-08-21',
-    what: 'The Moon’s shadow crosses the United States during a total solar eclipse.',
-    see: { time: '2017-08-21T18:26:00Z' },
-  },
-  {
-    date: '2024-04-08',
-    what: 'The shadow again, this time from Mexico to eastern Canada.',
-    see: { time: '2024-04-08T18:17:00Z' },
-  },
-  { date: '2023-06-21', what: 'June solstice. The Arctic is tipped towards the camera, in daylight all day.' },
-  { date: '2023-12-21', what: 'December solstice. Now Antarctica is in view and the Arctic is gone.' },
-]
 
 function Out({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -48,7 +18,7 @@ export function About({ s }: { s: EarthDay }) {
   const first = dates?.[0]
   const last = dates?.[dates.length - 1]
 
-  const visit = (date: string, see?: Omit<Aim, 'date'>) => {
+  const visit = (date: string, see?: See) => {
     s.pickDate(date, undefined, see)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
