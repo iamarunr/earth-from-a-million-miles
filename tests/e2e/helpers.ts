@@ -8,6 +8,14 @@ const EVENTS = readFileSync(here('./fixtures/events.json'), 'utf8')
 const PHOTO = readFileSync(here('../../public/sample/earth-2026-11-07.jpg'))
 
 /** Days the pretend archive holds. There is a gap between June 2019 and February 2020. */
+/** One red alert, an earthquake, and one orange that must be ignored. */
+const ALERTS = {
+  features: [
+    { geometry: { type: 'Point', coordinates: [100, 10] }, properties: { eventtype: 'EQ', eventid: 1, name: 'Earthquake in Testland', alertlevel: 'Red', fromdate: '2026-11-05T03:00:00', todate: '2026-11-05T03:00:00' } },
+    { geometry: { type: 'Point', coordinates: [20, 20] }, properties: { eventtype: 'VO', eventid: 2, name: 'Eruption  Minor', alertlevel: 'Orange', fromdate: '2026-11-06T00:00:00', todate: '2026-11-06T00:00:00' } },
+  ],
+}
+
 export const DATES = ['2015-06-13', '2017-08-21', '2019-06-27', '2020-02-12', '2023-06-21', '2023-12-21', '2024-04-08', '2026-08-26', '2026-10-08', '2026-10-11', '2026-10-20', '2026-11-05', '2026-11-06', '2026-11-07']
 export const LATEST = '2026-11-07'
 
@@ -16,6 +24,8 @@ export interface MockOptions {
   epicDown?: boolean
   /** The site's photo proxy is missing, as on a host without the worker. */
   proxyDown?: boolean
+  /** The disaster alert service does not answer. */
+  gdacsDown?: boolean
   /** The events service does not answer. */
   eonetDown?: boolean
   /** Ask for reduced motion, which also keeps the globe from turning by itself. */
@@ -42,6 +52,7 @@ export async function mockNasa(page: Page, opts: MockOptions = {}) {
   await page.route('**/epic-archive/**', (route) =>
     opts.proxyDown ? route.fulfill({ status: 404, body: 'Not found' }) : route.fulfill({ body: PHOTO, contentType: 'image/jpeg' }),
   )
+  await page.route('https://www.gdacs.org/**', (route) => (opts.gdacsDown ? route.abort() : route.fulfill({ json: ALERTS })))
   await page.route('https://eonet.gsfc.nasa.gov/**', (route) =>
     opts.eonetDown ? route.abort() : route.fulfill({ body: EVENTS, contentType: 'application/json' }),
   )

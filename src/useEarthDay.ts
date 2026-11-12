@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FIRST_DATE, SAMPLE_DATE, fetchDates, fetchFrames, prefetchFrames, project, loadSampleFrames, type Frame } from './lib/epic'
 import { DAYS, type See } from './days'
-import { LATELY_CATEGORIES, LATELY_DAYS, pickRecent, withPicked, type Recent } from './lib/lately'
+import { LATELY_CATEGORIES, LATELY_DAYS, newestFirst, pickRecent, withPicked, type Recent } from './lib/lately'
+import { fetchAlerts } from './lib/gdacs'
 import { fetchEvents, positionAt, type NaturalEvent } from './lib/eonet'
 
 export const EVENT_WINDOW_DAYS = 7
@@ -113,10 +114,16 @@ export function useEarthDay() {
     fetchDates(ctrl.signal)
       .then((list) => {
         setDates(list)
-        fetchEvents(list[list.length - 1], LATELY_DAYS, ctrl.signal, LATELY_CATEGORIES)
-          .then((ev) => setLately(withPicked(pickRecent(ev, list, 8), DAYS, list)))
-          // Without the tracker, the days chosen by hand can still be offered.
-          .catch((e) => e.name !== 'AbortError' && setLately(withPicked([], DAYS, list)))
+        // What to offer at the top: NASA's strongest storms, GDACS's red alerts, and the days chosen by hand.
+        // Either service may fail; the row is made from whatever answered.
+        const latest = list[list.length - 1]
+        Promise.allSettled([
+          fetchEvents(latest, LATELY_DAYS, ctrl.signal, LATELY_CATEGORIES).then((ev) => pickRecent(ev, list, 8)),
+          fetchAlerts(latest, LATELY_DAYS, list, ctrl.signal),
+        ]).then((got) => {
+          if (ctrl.signal.aborted) return
+          setLately(withPicked(newestFirst(...got.map((r) => (r.status === 'fulfilled' ? r.value : []))), DAYS, list))
+        })
         pickDate(wanted && /^\d{4}-\d{2}-\d{2}$/.test(wanted) ? wanted : list[list.length - 1], list)
       })
       .catch((e) => {

@@ -5,6 +5,8 @@
 export interface See {
   /** An event in NASA's tracker: the globe turns to it and opens its panel. */
   eventId?: string
+  /** The same, for an event known only by how its title ends, such as its GDACS number. */
+  eventTitleEnds?: string
   /** Where to turn if there is no event, or it cannot be found. */
   lat?: number
   lon?: number

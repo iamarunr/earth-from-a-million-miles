@@ -377,9 +377,9 @@ export default function EarthView({ s }: { s: EarthDay }) {
       }
     }
     // The events arrive separately, sometimes after the photographs.
-    if (aim.eventId && !a.found && s.eventsState === 'ready') {
+    if ((aim.eventId || aim.eventTitleEnds) && !a.found && s.eventsState === 'ready') {
       a.found = true
-      const mark = marks.find((m) => m.event.id === aim.eventId)
+      const mark = marks.find((m) => (aim.eventId ? m.event.id === aim.eventId : m.event.title.endsWith(aim.eventTitleEnds!)))
       if (mark) {
         s.setSelectedId(mark.event.id)
         flyTo(mark.point.lat, mark.point.lon)

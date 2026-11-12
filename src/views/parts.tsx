@@ -308,4 +308,4 @@ export function EventList({ s }: { s: EarthDay }) {
   )
 }
 
-export const CREDIT = 'Imagery: NASA EPIC / NOAA DSCOVR. Events: NASA EONET.'
+export const CREDIT = 'Imagery: NASA EPIC / NOAA DSCOVR. Events: NASA EONET. Alerts: GDACS.'

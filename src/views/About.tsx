@@ -121,6 +121,12 @@ export function About({ s }: { s: EarthDay }) {
               gathers reports of wildfires, storms, floods, volcanoes and sea ice from agencies around the world into one
               list. The dots on the globe are those events, placed where they were on the day you chose.
             </p>
+            <p>
+              The row at the very top offers somewhere to start: the strongest storms of the past month from EONET,
+              and any flood, earthquake, eruption or fire given a red alert by{' '}
+              <Out href="https://www.gdacs.org/">GDACS</Out>, the disaster alert system run by the United Nations and
+              the European Commission. A few days are added by hand.
+            </p>
           </div>
         </article>
 
@@ -186,7 +192,7 @@ export function Footer() {
         </nav>
       </div>
       <div className="foot-fine">
-        <p>Photographs: NASA EPIC and NOAA DSCOVR. Events: NASA EONET.</p>
+        <p>Photographs: NASA EPIC and NOAA DSCOVR. Events: NASA EONET. Alerts: GDACS.</p>
         <p>An independent project. Not affiliated with or endorsed by NASA.</p>
         <a href="#top">Back to the globe</a>
       </div>

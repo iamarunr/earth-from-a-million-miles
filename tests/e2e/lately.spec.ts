@@ -26,7 +26,16 @@ test('a day chosen by hand is offered while it is recent, and opens that day', a
   await expect(facing(page)).toHaveText(/27\.8°N\s+85\.5°E/, { timeout: 15_000 })
 })
 
-test('without the event tracker, only the days chosen by hand are offered', async ({ page }) => {
-  await openGlobe(page, '/', { eonetDown: true })
+test('without the event tracker, a red alert and the days chosen by hand are still offered', async ({ page }) => {
+  await openGlobe(page, '/', { eonetDown: true, still: true })
+  await expect(page.locator('.lately button')).toHaveText([/Earthquake in Testland\s*5 Nov/, /Super Typhoon Champi/, /Second Nepal flood/, /Hurricane Isaias/, /^\s*Nepal flood/])
+  // An earthquake has no mark in NASA's tracker, so the globe turns to where it struck.
+  await page.locator('.lately button').first().click()
+  await expect(page.locator('.date')).toHaveText('5 November 2026')
+  await expect(facing(page)).toHaveText(/10\.0°N\s+100\.0°E/, { timeout: 15_000 })
+})
+
+test('without either service, only the days chosen by hand are offered', async ({ page }) => {
+  await openGlobe(page, '/', { eonetDown: true, gdacsDown: true })
   await expect(page.locator('.lately button')).toHaveText([/Super Typhoon Champi/, /Second Nepal flood/, /Hurricane Isaias/, /^\s*Nepal flood/])
 })

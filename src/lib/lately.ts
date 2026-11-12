@@ -69,6 +69,11 @@ export function withPicked(auto: Recent[], picked: Day[], dates: string[], limit
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, auto.length ? limit - 1 : limit)
   const ids = new Set(mine.map((r) => r.id))
-  const rest = auto.filter((r) => !ids.has(r.id)).slice(0, limit - mine.length)
+  // An alert has no id in common with a day chosen by hand; the same kind of event on the same day is the same event.
+  const same = new Set(mine.map((r) => `${r.date} ${r.category}`))
+  const rest = auto.filter((r) => !ids.has(r.id) && !same.has(`${r.date} ${r.category}`)).slice(0, limit - mine.length)
   return [...mine, ...rest].sort((a, b) => b.date.localeCompare(a.date))
 }
+
+/** NASA's storms and GDACS's red alerts in one list, newest first. */
+export const newestFirst = (...lists: Recent[][]) => lists.flat().sort((a, b) => b.date.localeCompare(a.date))

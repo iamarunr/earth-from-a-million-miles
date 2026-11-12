@@ -28,6 +28,7 @@
 .earth [data-cat='floods'] { --c: #ffd60a !important; }
 .earth [data-cat='seaLakeIce'] { --c: #7cc8ff !important; }
 .earth [data-cat='volcanoes'] { --c: #ff9a1f !important; }
+.earth [data-cat='earthquakes'] { --c: #c9a6ff !important; }
 
 .icon { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .icon[data-fill] { fill: currentColor; stroke-width: 1; }
