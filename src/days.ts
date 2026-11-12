@@ -39,6 +39,13 @@ export const DAYS: Day[] = [
     category: 'severeStorms',
   },
   {
+    date: '2026-10-11',
+    what: 'A second flash flood in Nepal, this one down the Budhi Gandaki river in Gorkha. It takes out bridges and homes and strands more than a hundred trekkers on the Manaslu route.',
+    see: { eventId: 'EONET_25241', lat: 28.0, lon: 84.6 },
+    title: 'Second Nepal flood',
+    category: 'floods',
+  },
+  {
     date: '2026-10-08',
     what: 'Hurricane Isaias strengthens over the Gulf of Mexico, a day before it comes ashore on the northern Gulf coast.',
     see: { eventId: 'EONET_25063' },

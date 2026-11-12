@@ -15,7 +15,7 @@ test('About explains the project and links to NASA', async ({ page }) => {
     await expect(about.getByRole('heading', { level: 3, name: title })).toBeVisible()
   }
   // The count and latest day come from NASA's list, not from fixed text.
-  await expect(about).toContainText('photographs for 13 days')
+  await expect(about).toContainText('photographs for 14 days')
   await expect(about).toContainText('the most recent being 7 November 2026')
   await expect(about).toContainText('13 June 2015')
 
@@ -64,7 +64,7 @@ test('a day about one moment shows the photograph taken closest to it', async ({
 test('every "day worth seeing" is a day the archive has', async ({ page }) => {
   await openGlobe(page)
   const days = page.locator('.about-days button')
-  await expect(days).toHaveCount(7)
+  await expect(days).toHaveCount(8)
   for (const label of await days.allTextContents()) {
     await page.locator('.about-days').getByRole('button', { name: label }).click()
     // Had the day been missing, the page would have moved to a different one.
