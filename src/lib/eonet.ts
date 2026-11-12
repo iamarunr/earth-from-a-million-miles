@@ -101,13 +101,13 @@ const shiftDate = (date: string, days: number) => {
 
 const cache = new Map<string, NaturalEvent[]>()
 
-/** Events reported in the `days` days up to and including `date`. */
-export async function fetchEvents(date: string, days = 7, signal?: AbortSignal): Promise<NaturalEvent[]> {
-  const key = `${date}:${days}`
+/** Events reported in the `days` days up to and including `date`, optionally only of some categories. */
+export async function fetchEvents(date: string, days = 7, signal?: AbortSignal, categories?: string): Promise<NaturalEvent[]> {
+  const key = `${date}:${days}:${categories ?? ''}`
   const cached = cache.get(key)
   if (cached) return cached
 
-  const url = `${BASE}/events?status=all&start=${shiftDate(date, -(days - 1))}&end=${date}`
+  const url = `${BASE}/events?status=all&start=${shiftDate(date, -(days - 1))}&end=${date}${categories ? `&category=${categories}` : ''}`
   const res = await fetch(url, { signal })
   if (!res.ok) throw new Error(`Request failed (${res.status})`)
   const raw = (await res.json()) as { events: RawEvent[] }

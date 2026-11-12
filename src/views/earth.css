@@ -33,9 +33,25 @@
 .icon[data-fill] { fill: currentColor; stroke-width: 1; }
 
 /* Small uppercase label: buttons, chips, headings of lists and panels. */
-.label, .datebar button, .datebar input, .chip, .gridtoggle, .edge, .events-col h2, .slip-kind, .slip dt, .readouts dt, .events .more button {
+.label, .datebar button, .datebar input, .chip, .lately button, .gridtoggle, .edge, .events-col h2, .slip-kind, .slip dt, .readouts dt, .events .more button {
   font: 400 13px/1 var(--sans); text-transform: uppercase; letter-spacing: 0.06em;
 }
+
+/* ---- Lately: recent events to start from, in one line across the top ---- */
+.earth.has-lately { grid-template-areas: 'lately' 'head' 'stage' 'roll' 'events'; }
+.lately {
+  grid-area: lately; display: flex; align-items: center; gap: 14px; min-width: 0; min-height: 48px;
+  margin: -6px calc(-1 * var(--pr)) -6px calc(-1 * var(--pl)); padding: 6px var(--pr) 6px var(--pl);
+  overflow-x: auto; scrollbar-width: none;
+}
+.lately::-webkit-scrollbar { display: none; }
+.lately .label { flex: none; color: var(--dim); }
+.lately ul { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.lately li { flex: none; }
+.lately button { min-height: 36px; white-space: nowrap; animation: lately-in 0.5s var(--ease) both; }
+.lately i { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.lately b { color: var(--dim); font-weight: 400; }
+@keyframes lately-in { from { opacity: 0; } }
 
 /* ---- Title, date, caption ---- */
 .head { grid-area: head; min-width: 0; }
@@ -48,14 +64,14 @@
 .caption { max-width: 36ch; margin-top: 28px; color: var(--soft); font-variant-numeric: tabular-nums; text-wrap: pretty; }
 .caption b { color: var(--ink); font-weight: 400; white-space: nowrap; }
 .datebar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 8px; }
-.datebar button, .datebar input, .chip {
+.datebar button, .datebar input, .chip, .lately button {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 14px;
   border: 1px solid var(--line); border-radius: 999px; background: none;
   transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 .datebar input { min-width: 0; font-variant-numeric: tabular-nums; caret-color: #fff; }
 .datebar input:focus-within { outline: 2px solid #fff; outline-offset: 3px; }
-.datebar button:hover:not(:disabled), .datebar input:hover, .chip:hover { border-color: #fff; }
+.datebar button:hover:not(:disabled), .datebar input:hover, .chip:hover, .lately button:hover { border-color: #fff; }
 /* The two main actions carry a second, fainter ring. */
 .datebar .random, .play { outline: 1px solid rgba(255, 255, 255, 0.16); outline-offset: 5px; }
 .earth .random:focus-visible, .earth .play:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
@@ -168,7 +184,7 @@
   .cue-arrow { display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cue-wheel, .cue-arrow path { animation: none; }
+  .cue-wheel, .cue-arrow path, .lately button { animation: none; }
 }
 .rollbar { display: flex; align-items: center; gap: 14px; padding: 14px var(--pr) 0 var(--pl); }
 .edge { flex: 1; min-width: 0; color: var(--dim); line-height: 1.3; text-wrap: balance; }
@@ -250,6 +266,7 @@
 /* ---- Tablet: globe beside the text ---- */
 @media (min-width: 720px) and (max-width: 1099px), (min-width: 540px) and (max-width: 719px) and (orientation: landscape) and (max-height: 500px) {
   .earth { --gut: 32px; gap: 28px 36px; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); grid-template-areas: 'head stage' 'roll roll' 'events events'; align-items: center; }
+  .earth.has-lately { grid-template-areas: 'lately lately' 'head stage' 'roll roll' 'events events'; }
   .head h1 { font-size: clamp(2.4rem, 5.6vw, 3.3rem); }
   .events { max-height: none; overflow: visible; columns: 2; column-gap: 24px; }
   .events li { break-inside: avoid; }
@@ -263,6 +280,7 @@
     grid-template-rows: minmax(0, 1fr) auto;
     grid-template-areas: 'head stage events' 'roll roll roll';
   }
+  .earth.has-lately { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: 'lately lately lately' 'head stage events' 'roll roll roll'; }
   .head, .events-col { overflow-y: auto; scrollbar-width: thin; }
   .head { display: flex; flex-direction: column; justify-content: safe center; padding: 8px; margin: -8px; }
   .head > * { flex: none; }
@@ -290,11 +308,17 @@
   .lede { margin-top: 12px; }
   .date { margin: 20px 0 12px; }
   .caption { margin-top: 18px; }
+  /* The row of recent events takes height the text column was using; win it back. */
+  .earth.has-lately { padding-top: 14px; row-gap: 16px; }
+  .has-lately .lede { margin-top: 10px; }
+  .has-lately .date { margin: 12px 0 10px; }
+  .has-lately .caption { margin-top: 9px; }
 }
 
 /* ---- Wide but very short windows: let the page scroll ---- */
 @media (min-width: 1100px) and (max-height: 679px) {
   .earth { height: auto; min-height: 100dvh; overflow: visible; grid-template-rows: auto auto; align-items: start; }
+  .earth.has-lately { grid-template-rows: auto auto auto; }
   .head, .events-col { overflow: visible; }
   .head { justify-content: flex-start; }
   .stage { container-type: normal; }
@@ -312,6 +336,7 @@
 @media (max-width: 539px), (max-width: 719px) and (orientation: portrait), (max-width: 719px) and (min-height: 501px) {
   .earth { display: flex; flex-direction: column; gap: 0; }
   .head { display: contents; }
+  .lately { flex: none; margin-bottom: 14px; }
   .head h1 { order: 1; }
   .lede { order: 2; }
   .stage { order: 3; margin: 20px 0 4px; }

@@ -32,6 +32,8 @@ const MAX_ZOOM = 8
 const clampZoom = (z: number) => Math.max(1, Math.min(MAX_ZOOM, z))
 const fmtWhen = (t: number) =>
   `${new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC`
+const fmtShortDay = (date: string) =>
+  new Date(date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 const fmtDay = (t: number) =>
   new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
 const wrapLon = (lon: number) => ((((lon + 180) % 360) + 360) % 360) - 180
@@ -685,7 +687,23 @@ export default function EarthView({ s }: { s: EarthDay }) {
       : `Reconstructed from the day’s ${count === 1 ? 'one photograph' : `${count} photographs`}. Choose one below to see exactly what the camera saw.`
 
   return (
-    <div className={flat ? 'earth is-flat' : 'earth'} id="top">
+    <div className={`earth${flat ? ' is-flat' : ''}${s.lately?.length === 0 ? '' : ' has-lately'}`} id="top">
+      {s.lately?.length !== 0 && (
+        <nav className="lately" aria-label="Recent events to look at">
+          <span className="label">Lately</span>
+          <ul>
+            {s.lately?.map((r) => (
+              <li key={r.id}>
+                <button data-cat={r.category} onClick={() => s.pickDate(r.date, undefined, { eventId: r.id })}>
+                  <i />
+                  {r.title}
+                  <b>{fmtShortDay(r.date)}</b>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <header className="head">
         <h1>Earth, From a Million Miles</h1>
         <p className="lede">

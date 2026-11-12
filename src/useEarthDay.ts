@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FIRST_DATE, SAMPLE_DATE, fetchDates, fetchFrames, prefetchFrames, project, loadSampleFrames, type Frame } from './lib/epic'
+import { LATELY_CATEGORIES, LATELY_DAYS, pickRecent, type Recent } from './lib/lately'
 import { fetchEvents, positionAt, type NaturalEvent } from './lib/eonet'
 
 export const EVENT_WINDOW_DAYS = 7
@@ -92,6 +93,8 @@ export function useEarthDay() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(false)
   const [aim, setAim] = useState<Aim | null>(null)
+  /** Recent events worth opening; null while they are being looked up. */
+  const [lately, setLately] = useState<Recent[] | null>(null)
 
   const pickDate = useCallback(
     (wanted: string, list = dates, target?: Omit<Aim, 'date'>) => {
@@ -118,12 +121,16 @@ export function useEarthDay() {
     fetchDates(ctrl.signal)
       .then((list) => {
         setDates(list)
+        fetchEvents(list[list.length - 1], LATELY_DAYS, ctrl.signal, LATELY_CATEGORIES)
+          .then((ev) => setLately(pickRecent(ev, list)))
+          .catch((e) => e.name !== 'AbortError' && setLately([]))
         pickDate(wanted && /^\d{4}-\d{2}-\d{2}$/.test(wanted) ? wanted : list[list.length - 1], list)
       })
       .catch((e) => {
         if (e.name === "AbortError") return
         // The archive is unreachable: fall back to the one saved photo.
         loadSampleFrames()
+        setLately([])
         setDates([SAMPLE_DATE])
         setDate(SAMPLE_DATE)
         setNotice("NASA’s photo service is not responding right now, so this is one saved photo from 7 November 2026. Reload later for every day since 2015.")
@@ -251,7 +258,7 @@ export function useEarthDay() {
 
   return {
     dates, date, dateIndex, notice, error, ready, frames, frame, idx, playing, loaded,
-    events, eventsState, categories, hidden, placed, inView, selected, selectedId, showGrid, grid, track, aim,
+    events, eventsState, categories, hidden, placed, inView, selected, selectedId, showGrid, grid, track, aim, lately,
     pickDate, stepDay, focusEvent, toggleCategory, setSelectedId, setShowGrid,
     randomDay: () => {
       if (!dates) return
