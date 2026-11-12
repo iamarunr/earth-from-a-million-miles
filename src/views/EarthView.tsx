@@ -71,6 +71,8 @@ export default function EarthView({ s }: { s: EarthDay }) {
   const [dayPlaying, setDayPlaying] = useState(false)
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed' | 'unsupported'>('loading')
   const [progress, setProgress] = useState(0)
+  /** The photographs the globe was last built from. */
+  const [builtFor, setBuiltFor] = useState<EarthDay['frames'] | null>(null)
   const [facing, setFacing] = useState({ lat: 8, lon: 20, near: 0, zoom: 1 })
   /** The real photograph shown over the reconstruction, when the view matches one exactly. */
   const [photo, setPhoto] = useState<{ idx: number; on: boolean }>({ idx: 0, on: false })
@@ -129,6 +131,7 @@ export default function EarthView({ s }: { s: EarthDay }) {
       .setFrames(s.frames, (f) => viaProxy(f.url), size, (n) => current && setProgress(n))
       .then(() => {
         if (!current) return
+        setBuiltFor(s.frames)
         setStatus('ready')
         view.current.dirty = true
       })
@@ -351,6 +354,36 @@ export default function EarthView({ s }: { s: EarthDay }) {
     revealGlobe(window.innerWidth < 1100 ? 340 : 0)
     flyTo(mark.point.lat, mark.point.lon)
   }
+  // A day opened for something particular: once it is on the globe, turn to that.
+  const aimed = useRef<{ aim: unknown; turned: boolean; found: boolean }>({ aim: null, turned: false, found: false })
+  useEffect(() => {
+    const aim = s.aim
+    if (aimed.current.aim !== aim) aimed.current = { aim, turned: false, found: false }
+    const a = aimed.current
+    if (!aim || aim.date !== s.date || !s.ready || builtFor !== s.frames || status !== 'ready') return
+    if (!a.turned) {
+      a.turned = true
+      if (aim.time) {
+        const t = Date.parse(aim.time)
+        let near = 0
+        s.frames.forEach((f, i) => {
+          if (Math.abs(f.time.getTime() - t) < Math.abs(s.frames[near].time.getTime() - t)) near = i
+        })
+        flyTo(s.frames[near].lat0, s.frames[near].lon0, () => setPhoto({ idx: near, on: true }), 1)
+      } else if (aim.lat !== undefined && aim.lon !== undefined) {
+        flyTo(aim.lat, aim.lon)
+      }
+    }
+    // The events arrive separately, sometimes after the photographs.
+    if (aim.eventId && !a.found && s.eventsState === 'ready') {
+      a.found = true
+      const mark = marks.find((m) => m.event.id === aim.eventId)
+      if (mark) {
+        s.setSelectedId(mark.event.id)
+        flyTo(mark.point.lat, mark.point.lon)
+      }
+    }
+  })
   const active = spinning || dayPlaying
   /** Pause whatever is moving, or play the day's photographs in order. */
   const togglePlay = () => {

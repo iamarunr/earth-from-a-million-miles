@@ -42,6 +42,25 @@ test('a "day worth seeing" loads that day and returns to the globe', async ({ pa
   await expect(page.locator('.face.ready')).toBeVisible()
 })
 
+test('a day about one place turns the globe to that place', async ({ page }) => {
+  await openGlobe(page, '/', { still: true })
+  await page.locator('#about').getByRole('button', { name: '26 August 2026' }).click()
+  await expect(page.locator('.date')).toHaveText('26 August 2026')
+  // Langtang, Nepal.
+  await expect(facing(page)).toHaveText(/27\.8°N\s+85\.5°E/, { timeout: 15_000 })
+  await page.waitForTimeout(500)
+  await expect(facing(page)).toHaveText(/27\.8°N\s+85\.5°E/)
+})
+
+test('a day about one moment shows the photograph taken closest to it', async ({ page }) => {
+  await openGlobe(page, '/', { still: true })
+  await page.locator('#about').getByRole('button', { name: '21 August 2017' }).click()
+  await expect(page.locator('.date')).toHaveText('21 August 2017')
+  // The eclipse peaked at 18:26 UTC; of the four recorded photographs, 15:05 is the closest.
+  await expect(page.locator('.photo.on')).toHaveAttribute('alt', /15:05 UTC on 21 August 2017/, { timeout: 15_000 })
+  await expect(page.locator('.thumb').nth(2)).toHaveAttribute('aria-current', 'true')
+})
+
 test('every "day worth seeing" is a day the archive has', async ({ page }) => {
   await openGlobe(page)
   const days = page.locator('.about-days button')

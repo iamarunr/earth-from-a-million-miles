@@ -64,6 +64,18 @@ function graticule(frame: Frame) {
   return { d, equator: parallel(0) }
 }
 
+/** Something on a chosen day for the globe to turn to once the day has loaded. */
+export interface Aim {
+  date: string
+  /** An event in NASA's tracker: the globe turns to it and opens its panel. */
+  eventId?: string
+  /** Where to turn if there is no event, or it cannot be found. */
+  lat?: number
+  lon?: number
+  /** A moment (UTC): the photograph taken closest to it is shown. */
+  time?: string
+}
+
 export function useEarthDay() {
   const [dates, setDates] = useState<string[] | null>(null)
   const [date, setDate] = useState<string | null>(null)
@@ -79,9 +91,10 @@ export function useEarthDay() {
   const [hidden, setHidden] = useState<Set<string>>(new Set())
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(false)
+  const [aim, setAim] = useState<Aim | null>(null)
 
   const pickDate = useCallback(
-    (wanted: string, list = dates) => {
+    (wanted: string, list = dates, target?: Omit<Aim, 'date'>) => {
       if (!list?.length) return
       const snapped = snapToAvailable(list, wanted)
       setNotice(
@@ -91,6 +104,7 @@ export function useEarthDay() {
             ? `The camera’s first photos are from ${fmtLongDate(list[0])}. Showing that day.`
             : `No photos were taken on ${fmtLongDate(wanted)}. Showing ${fmtLongDate(snapped)}.`,
       )
+      setAim(target && snapped === wanted ? { ...target, date: snapped } : null)
       setDate(snapped)
     },
     [dates],
@@ -168,6 +182,7 @@ export function useEarthDay() {
       const next = dates?.[dateIndex + by]
       if (dateIndex >= 0 && next) {
         setNotice(null)
+        setAim(null)
         setDate(next)
       }
     },
@@ -236,11 +251,12 @@ export function useEarthDay() {
 
   return {
     dates, date, dateIndex, notice, error, ready, frames, frame, idx, playing, loaded,
-    events, eventsState, categories, hidden, placed, inView, selected, selectedId, showGrid, grid, track,
+    events, eventsState, categories, hidden, placed, inView, selected, selectedId, showGrid, grid, track, aim,
     pickDate, stepDay, focusEvent, toggleCategory, setSelectedId, setShowGrid,
     randomDay: () => {
       if (!dates) return
       setNotice(null)
+      setAim(null)
       setDate(dates[Math.floor(Math.random() * dates.length)])
     },
     goTo: (i: number) => {
