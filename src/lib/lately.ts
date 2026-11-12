@@ -14,8 +14,10 @@ export interface Recent {
   see?: See
 }
 
-/** How far back to look, in days. */
+/** How far back to look in NASA's tracker, in days. */
 export const LATELY_DAYS = 30
+/** How long a day chosen by hand stays in the row: about three months. */
+export const PICKED_DAYS = 92
 /** Only these kinds of event say how severe they are, or are rare enough to always matter. */
 export const LATELY_CATEGORIES = 'severeStorms,volcanoes'
 /** Hurricane strength: 64 knots of sustained wind. */
@@ -55,15 +57,17 @@ const daysBetween = (a: string, b: string) => (Date.parse(b) - Date.parse(a)) / 
  * Add the days chosen by hand that are still recent. NASA's tracker cannot say
  * how bad a flood or landslide was, so those only get here this way. A day
  * chosen by hand is never pushed out by an automatic one, and replaces the
- * automatic entry for the same event.
+ * automatic entry for the same event. At least one place is kept for the
+ * newest automatic entry, so the row never goes stale.
  */
-export function withPicked(auto: Recent[], picked: Day[], dates: string[], limit = 4): Recent[] {
+export function withPicked(auto: Recent[], picked: Day[], dates: string[], limit = 5): Recent[] {
   const latest = dates[dates.length - 1]
   const have = new Set(dates)
   const mine = picked
-    .filter((d) => d.title && have.has(d.date) && daysBetween(d.date, latest) < LATELY_DAYS)
+    .filter((d) => d.title && have.has(d.date) && daysBetween(d.date, latest) < PICKED_DAYS)
     .map((d): Recent => ({ id: d.see?.eventId ?? d.date, title: d.title!, category: d.category ?? 'other', date: d.date, see: d.see }))
-    .slice(0, limit)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, auto.length ? limit - 1 : limit)
   const ids = new Set(mine.map((r) => r.id))
   const rest = auto.filter((r) => !ids.has(r.id)).slice(0, limit - mine.length)
   return [...mine, ...rest].sort((a, b) => b.date.localeCompare(a.date))

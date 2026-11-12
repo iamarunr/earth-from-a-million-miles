@@ -28,7 +28,7 @@ export const DAYS: Day[] = [
     date: '2026-08-26',
     what: 'A glacier and the slope beneath it give way in Langtang, Nepal. The flood runs about 100 km down the valley and kills hundreds of people. From this far away only the monsoon cloud shows; the flood itself is marked.',
     see: { eventId: 'EONET_23468', lat: 27.8, lon: 85.5 },
-    title: 'Langtang flood, Nepal',
+    title: 'Nepal flood',
     category: 'floods',
   },
   {

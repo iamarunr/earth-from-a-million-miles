@@ -57,19 +57,32 @@ describe('withPicked', () => {
   const day = (date: string, title?: string, eventId?: string) => ({ date, what: '', title, category: 'floods', see: eventId ? { eventId } : { lat: 1, lon: 2 } })
 
   it('adds a recent day chosen by hand, in date order, without growing the row', () => {
-    const out = withPicked(auto, [day('2026-11-05', 'A flood')], DATES)
+    const out = withPicked(auto, [day('2026-11-05', 'A flood')], DATES, 4)
     expect(out.map((r) => r.title)).toEqual(['a', 'A flood', 'b', 'c'])
     expect(out[1]).toMatchObject({ category: 'floods', see: { lat: 1, lon: 2 } })
   })
 
   it('replaces the automatic entry for the same event', () => {
-    const out = withPicked(auto, [day('2026-11-01', 'Named by hand', 'b')], DATES)
+    const out = withPicked(auto, [day('2026-11-01', 'Named by hand', 'b')], DATES, 4)
     expect(out.map((r) => r.title).sort()).toEqual(['Named by hand', 'a', 'c', 'd'])
   })
 
   it('leaves out days that are old, untitled, or missing from the archive', () => {
-    const out = withPicked(auto, [day('2026-08-26', 'Old'), day('2026-11-05'), day('2026-11-04', 'No photographs')], DATES)
+    const out = withPicked(auto, [day('2026-07-01', 'Old'), day('2026-11-05'), day('2026-11-04', 'No photographs')], [...DATES, '2026-07-01'].sort())
     expect(out.map((r) => r.title)).toEqual(['a', 'b', 'c', 'd'])
+  })
+
+  it('keeps a day chosen by hand for about three months', () => {
+    const dates = ['2026-07-20', '2026-08-26', ...DATES]
+    const out = withPicked([], [day('2026-08-26', 'Ten weeks ago'), day('2026-07-20', 'Too long ago')], dates)
+    expect(out.map((r) => r.title)).toEqual(['Ten weeks ago'])
+  })
+
+  it('keeps one place for the newest automatic entry however many days are chosen', () => {
+    const many = DATES.map((d, i) => day(d, `hand ${i}`))
+    const out = withPicked(auto, [...many, day('2026-11-06', 'extra', 'x')], DATES, 4)
+    expect(out.map((r) => r.title)).toContain('a')
+    expect(out).toHaveLength(4)
   })
 
   it('still offers the chosen days when the tracker gave nothing', () => {
