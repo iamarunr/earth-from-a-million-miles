@@ -9,6 +9,12 @@
       name="description"
       content="Spin a globe made only from the photographs NASA's EPIC camera took of Earth on any day since 2015, from 1.5 million km away, with that week's wildfires, storms and floods marked on it."
     />
+    <link rel="canonical" href="https://earth-from-a-million-miles.pages.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://earth-from-a-million-miles.pages.dev/" />
+    <meta property="og:image" content="https://earth-from-a-million-miles.pages.dev/sample/earth-2026-11-07.jpg" />
+    <meta property="og:image:alt" content="The whole sunlit Earth, photographed from 1.5 million km away." />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:title" content="Earth, From a Million Miles" />
     <meta
       property="og:description"
@@ -19,10 +25,17 @@
     <link rel="preconnect" href="https://eonet.gsfc.nasa.gov" crossorigin />
     <link rel="preconnect" href="https://www.gdacs.org" crossorigin />
     <link rel="preconnect" href="https://epic.gsfc.nasa.gov" />
+    <!-- The one typeface, asked for before the stylesheet names it, so the title is not set twice. -->
+    <link rel="preload" as="font" type="font/woff2" href="/node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2" crossorigin />
     <title>Earth, From a Million Miles</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <p style="margin: 2rem; color: #fff; font: 16px/1.5 system-ui, sans-serif">
+        Earth, From a Million Miles builds its globe in the browser, so it needs JavaScript switched on.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

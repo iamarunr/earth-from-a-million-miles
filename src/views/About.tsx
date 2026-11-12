@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { SITE } from '../site'
 import { DAYS, type See } from '../days'
-import { fmtLongDate, type EarthDay } from '../useEarthDay'
+import { fmtLongDate } from '../lib/format'
+import type { EarthDay } from '../useEarthDay'
 import { Icon } from './parts'
 import './about.css'
 
@@ -21,6 +22,9 @@ export function About({ s }: { s: EarthDay }) {
   const visit = (date: string, see?: See) => {
     s.pickDate(date, undefined, see)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    // The button pressed is about to be far below the screen: move keyboard focus up with the page.
+    const top = document.getElementById('top')
+    ;(top?.querySelector<HTMLElement>('.face[tabindex]') ?? top?.querySelector('h1'))?.focus({ preventScroll: true })
   }
 
   return (

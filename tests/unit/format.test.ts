@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { basis, dot } from '../../src/lib/globe'
-import { fmtCoord, fmtKm, fmtLongDate, fmtTime, snapToAvailable } from '../../src/useEarthDay'
+import { fmtCoord, fmtKm, fmtLongDate, fmtTime } from '../../src/lib/format'
+import { snapToAvailable } from '../../src/useEarthDay'
 
 describe('formatting', () => {
   it('writes times in UTC', () => {

@@ -23,12 +23,6 @@
 }
 .earth ::selection { background: #fff; color: #000; }
 .earth :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.earth [data-cat='wildfires'] { --c: #ff5b3a !important; }
-.earth [data-cat='severeStorms'] { --c: #ffffff !important; }
-.earth [data-cat='floods'] { --c: #ffd60a !important; }
-.earth [data-cat='seaLakeIce'] { --c: #7cc8ff !important; }
-.earth [data-cat='volcanoes'] { --c: #ff9a1f !important; }
-.earth [data-cat='earthquakes'] { --c: #c9a6ff !important; }
 
 .icon { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .icon[data-fill] { fill: currentColor; stroke-width: 1; }
@@ -41,7 +35,7 @@
 /* ---- Lately: recent events to start from, in one line across the top ---- */
 .earth.has-lately { grid-template-areas: 'lately' 'head' 'stage' 'roll' 'events'; }
 .lately {
-  grid-area: lately; display: flex; align-items: center; gap: 14px; min-width: 0; min-height: 48px;
+  grid-area: lately; display: flex; align-items: center; gap: 14px; min-width: 0; min-height: 52px;
   margin: -6px calc(-1 * var(--pr)) -6px calc(-1 * var(--pl)); padding: 6px var(--pr) 6px var(--pl);
   overflow-x: auto; scrollbar-width: none;
   /* When the row is longer than the window, it fades out at the edge it runs under. */
@@ -65,7 +59,9 @@
 .lede a:hover { text-decoration-color: #fff; }
 .date { margin: 30px 0 14px; font: 400 clamp(1.7rem, 5.6vw, 2.1rem) / 1 var(--sans); letter-spacing: -0.02em; font-variant-numeric: lining-nums; }
 .notice { max-width: 40ch; margin-top: 14px; color: #ffd9a0; }
-.caption { max-width: 36ch; margin-top: 28px; color: var(--soft); font-variant-numeric: tabular-nums; text-wrap: pretty; }
+.caption, .caption-space { max-width: 36ch; margin-top: 28px; color: var(--soft); font-variant-numeric: tabular-nums; text-wrap: pretty; }
+/* Holds the sentence's place until there is something to say. */
+.caption-space { visibility: hidden; }
 .caption b { color: var(--ink); font-weight: 400; white-space: nowrap; }
 .datebar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 8px; }
 .datebar button, .datebar input, .chip, .lately button {
@@ -89,9 +85,8 @@
 .face {
   /* Never taller than the window, so a phone held sideways still shows the whole planet. */
   position: relative; width: 100%; max-width: min(640px, max(240px, calc(100svh - 32px))); aspect-ratio: 1; border-radius: 50%;
-  cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+  cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; scroll-margin-top: 16px;
 }
-.face { scroll-margin-top: 16px; }
 .face:active { cursor: grabbing; }
 .face:focus-visible { outline-offset: -6px; }
 /* A faint grey lift directly behind the planet, wherever the planet is. */
@@ -160,12 +155,11 @@
 .callout span { color: var(--soft); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* ---- The day's photographs ---- */
+/* The scroll cue rests on the line under the globe. */
 .roll {
-  grid-area: roll; min-width: 0; border-top: 1px solid var(--faint);
+  grid-area: roll; position: relative; min-width: 0; border-top: 1px solid var(--faint);
   margin: 0 calc(-1 * var(--pr)) 0 calc(-1 * var(--pl));
 }
-/* The scroll cue rests on the line under the globe. */
-.roll { position: relative; }
 .cue {
   position: absolute; left: 50%; top: 0; z-index: 2; translate: -50% -50%;
   display: inline-flex; align-items: center; gap: 9px; height: 30px; padding: 0 13px 0 15px;
@@ -205,7 +199,8 @@
 }
 .gridtoggle:hover { border-color: #fff; }
 .gridtoggle[aria-pressed='true'] { background: #fff; border-color: #fff; color: #000; }
-.strip { display: flex; gap: 6px; overflow-x: auto; padding: 14px var(--pr) 18px var(--pl); scrollbar-width: none; }
+/* Tall enough for the thumbnails before they arrive, so the page below does not jump. */
+.strip { display: flex; gap: 6px; min-height: 105px; overflow-x: auto; padding: 14px var(--pr) 18px var(--pl); scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 .thumb {
   display: flex; flex: 1 0 54px; flex-direction: column; align-items: center; gap: 8px; max-width: 92px;
@@ -291,7 +286,8 @@
   .head h1 { font-size: clamp(3rem, 4.5vw, 4.6rem); }
   .stage { justify-content: center; container-type: size; }
   .face { width: min(100cqw, calc(100cqh - 62px)); max-width: none; }
-  .strip { justify-content: center; }
+  /* Thumbnails are always full size at this width. */
+  .strip { justify-content: center; min-height: 143px; }
   .events-col { padding-bottom: 0; }
   .events {
     max-height: none; min-height: 120px; padding-bottom: 28px;
@@ -318,12 +314,12 @@
   .head h1 { font-size: clamp(2.4rem, 3.5vw, 3.2rem); }
   .lede { margin-top: 12px; }
   .date { margin: 20px 0 12px; }
-  .caption { margin-top: 18px; }
+  .caption, .caption-space { margin-top: 18px; }
   /* The row of recent events takes height the text column was using; win it back. */
   .earth.has-lately { padding-top: 14px; row-gap: 16px; }
   .has-lately .lede { margin-top: 10px; }
   .has-lately .date { margin: 12px 0 10px; }
-  .has-lately .caption { margin-top: 9px; }
+  .has-lately :is(.caption, .caption-space) { margin-top: 9px; }
 }
 
 /* ---- Wide but very short windows: let the page scroll ---- */
@@ -356,8 +352,8 @@
   .date { order: 5; margin-top: 30px; }
   .datebar { order: 6; }
   .notice { order: 7; }
-  .readouts, .caption { order: 8; margin-top: 26px; }
-  .caption { max-width: none; }
+  .readouts, .caption, .caption-space { order: 8; margin-top: 26px; }
+  .caption, .caption-space { max-width: none; }
   .events-col { order: 9; margin-top: 30px; }
   /* The list flows with the page here; no scroll area inside a scroll area. */
   .events { max-height: none; overflow: visible; }
@@ -377,10 +373,18 @@
   .earth { align-items: start; }
   .head h1 { font-size: clamp(2rem, 5vw, 2.6rem); }
   .date { margin-top: 20px; }
-  .caption { margin-top: 18px; }
+  .caption, .caption-space { margin-top: 18px; }
   /* No room under the globe: the event panel is pinned beside it instead. */
   .slip.docked {
     position: fixed; left: var(--pl); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 5;
     width: min(272px, 44vw); max-height: calc(100svh - 32px); overflow-y: auto;
   }
+}
+
+/* ---- Windows high contrast: keep what colour alone was saying ---- */
+@media (forced-colors: active) {
+  /* The dots that tell kinds of event apart keep their own colours. */
+  .lately i, .chip i, .events i, .slip-kind i, .marker { forced-color-adjust: none; }
+  .gridtoggle[aria-pressed='true'], .events .selected button { background: Highlight; color: HighlightText; }
+  .thumb.on img { outline-color: Highlight; outline-width: 2px; }
 }

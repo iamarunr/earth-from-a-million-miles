@@ -40,14 +40,19 @@ interface RawEvent {
   geometry: RawGeometry[]
 }
 
+/**
+ * One name and one colour per kind of event. These are the only strong colours
+ * on the page: the dots on the globe, in the list, on the chips and in the panel
+ * all read them from here.
+ */
 export const CATEGORY_STYLE: Record<string, { label: string; color: string }> = {
-  wildfires: { label: 'Wildfires', color: '#ff8a3d' },
-  severeStorms: { label: 'Severe storms', color: '#6fe3ff' },
-  volcanoes: { label: 'Volcanoes', color: '#ff4d6d' },
-  seaLakeIce: { label: 'Sea & lake ice', color: '#e8f4ff' },
-  floods: { label: 'Floods', color: '#6f8cff' },
+  wildfires: { label: 'Wildfires', color: '#ff5b3a' },
+  severeStorms: { label: 'Severe storms', color: '#ffffff' },
+  volcanoes: { label: 'Volcanoes', color: '#ff9a1f' },
+  seaLakeIce: { label: 'Sea & lake ice', color: '#7cc8ff' },
+  floods: { label: 'Floods', color: '#ffd60a' },
   dustHaze: { label: 'Dust & haze', color: '#e6c27a' },
-  earthquakes: { label: 'Earthquakes', color: '#c78bff' },
+  earthquakes: { label: 'Earthquakes', color: '#c9a6ff' },
   landslides: { label: 'Landslides', color: '#b98a5e' },
   drought: { label: 'Drought', color: '#ffd166' },
   snow: { label: 'Snow', color: '#ffffff' },

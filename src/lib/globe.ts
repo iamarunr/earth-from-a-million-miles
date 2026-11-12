@@ -133,7 +133,12 @@ export function createGlobe(canvas: HTMLCanvasElement): Globe | null {
   gl.enableVertexAttribArray(aPos)
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0)
 
-  const u = (name: string) => gl.getUniformLocation(prog, name)
+  // Each uniform's location is looked up once, not on every frame.
+  const locations = new Map<string, WebGLUniformLocation | null>()
+  const u = (name: string) => {
+    if (!locations.has(name)) locations.set(name, gl.getUniformLocation(prog, name))
+    return locations.get(name)!
+  }
   let tex: WebGLTexture | null = null
   let count = 0
   let generation = 0
@@ -182,6 +187,8 @@ export function createGlobe(canvas: HTMLCanvasElement): Globe | null {
           if (!res.ok) throw new Error(`Photo request failed (${res.status})`)
           const img = await createImageBitmap(await res.blob())
           if (mine !== generation) return img.close()
+          // Scaling here, then handing the canvas over, measured faster than
+          // asking createImageBitmap to scale or uploading the bitmap directly.
           ctx.drawImage(img, 0, 0, size, size)
           img.close()
           gl.bindTexture(gl.TEXTURE_2D_ARRAY, tex)

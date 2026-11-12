@@ -53,6 +53,44 @@ test.describe('accessibility', () => {
     }
   })
 
+  test('what changes on the page is said aloud, not only shown', async ({ page }) => {
+    await openGlobe(page, '/', { still: true })
+    // The day, when any control changes it.
+    await expect(page.locator('.date')).toHaveAttribute('aria-live', 'polite')
+    // A name and its date are two words to a screen reader, not one.
+    await expect(page.locator('.lately').getByRole('button', { name: 'Typhoon Testa 6 Nov' })).toBeVisible()
+    // Choosing an event opens a panel without moving focus, so its name is announced.
+    const said = page.locator('.stage [role="status"]')
+    await expect(said).toHaveText('')
+    await page.locator('.events').getByRole('button', { name: 'Typhoon Testa' }).click()
+    await expect(said).toHaveText(/^Typhoon Testa\. Severe storms · /)
+    await page.keyboard.press('Escape')
+    await expect(said).toHaveText('')
+  })
+
+  test('opening a day from the About section takes keyboard focus back up to the globe', async ({ page }) => {
+    await openGlobe(page, '/', { still: true })
+    await page.locator('.about-days button').first().focus()
+    await page.keyboard.press('Enter')
+    await expect(face(page)).toBeFocused()
+  })
+
+  test('nothing jumps while the day loads', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { shift: number }
+      w.shift = 0
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.shift += e.value
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+    for (const size of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(size)
+      await openGlobe(page, '/', { still: true })
+      await expect(page.locator('.events li').first()).toBeVisible()
+      expect(await page.evaluate(() => (window as unknown as { shift: number }).shift), `layout shift at ${size.width} wide`).toBeLessThan(0.02)
+    }
+  })
+
   test('the page has one main heading and an ordered outline', async ({ page }) => {
     await openGlobe(page)
     await expect(page.locator('h1')).toHaveCount(1)

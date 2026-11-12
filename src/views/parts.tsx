@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { FIRST_DATE, diskRadius } from '../lib/epic'
 import { categoryStyle } from '../lib/eonet'
-import { fmtCoord, fmtKm, fmtLongDate, fmtTime, type EarthDay } from '../useEarthDay'
+import { fmtCoord, fmtKm, fmtLongDate, fmtTime, pad } from '../lib/format'
+import type { EarthDay } from '../useEarthDay'
+import { eventKind, kindColor } from './kind'
 
 const ICONS = {
   prev: 'M14.5 5.5 8 12l6.5 6.5',
@@ -24,8 +26,6 @@ export function Icon({ name }: { name: keyof typeof ICONS }) {
     </svg>
   )
 }
-
-const cssVar = (color: string) => ({ '--c': color }) as CSSProperties
 
 export function DateControls({ s }: { s: EarthDay }) {
   const last = s.dates?.[s.dates.length - 1]
@@ -89,7 +89,6 @@ export function Readouts({ s }: { s: EarthDay }) {
   )
 }
 
-/** The photograph with the grid, event marks and the selected event's label. */
 /** Drag sideways on the photo to step through the day, as if turning the planet. */
 function useTurn(s: EarthDay, enabled?: boolean) {
   const drag = useRef<{ x: number; idx: number } | null>(null)
@@ -125,6 +124,7 @@ function useTurn(s: EarthDay, enabled?: boolean) {
   }
 }
 
+/** The photograph with the grid, event marks and the selected event's label. */
 export function Planet({ s, ring, turn }: { s: EarthDay; ring?: ReactNode; turn?: boolean }) {
   const turnHandlers = useTurn(s, turn)
   const { frame } = s
@@ -168,7 +168,7 @@ export function Planet({ s, ring, turn }: { s: EarthDay; ring?: ReactNode; turn?
                   className={isSel ? 'marker selected' : 'marker'}
                   data-cat={event.category}
                   style={{
-                    ...cssVar(categoryStyle(event.category).color),
+                    ...kindColor(event.category),
                     left: `${pos.x * 100}%`,
                     top: `${pos.y * 100}%`,
                     opacity: isSel ? 1 : 0.5 + 0.5 * Math.min(1, pos.facing * 3),
@@ -186,12 +186,11 @@ export function Planet({ s, ring, turn }: { s: EarthDay; ring?: ReactNode; turn?
             <div
               className={s.selected.pos.x > 0.58 ? 'callout left' : 'callout'}
               data-cat={s.selected.event.category}
-              style={{ left: `${s.selected.pos.x * 100}%`, top: `${s.selected.pos.y * 100}%` }}
+              style={{ ...kindColor(s.selected.event.category), left: `${s.selected.pos.x * 100}%`, top: `${s.selected.pos.y * 100}%` }}
             >
               <strong>{s.selected.event.title}</strong>
               <span>
-                {categoryStyle(s.selected.event.category, s.selected.event.categoryTitle).label} ·{' '}
-                {fmtCoord(s.selected.point.lat, s.selected.point.lon)}
+                {eventKind(s.selected)}
                 {s.selected.point.magnitude ? ` · ${s.selected.point.magnitude}` : ''}
               </span>
             </div>
@@ -202,7 +201,8 @@ export function Planet({ s, ring, turn }: { s: EarthDay; ring?: ReactNode; turn?
   )
 }
 
-export function Strip({ s, label }: { s: EarthDay; label?: (i: number, time: string) => ReactNode }) {
+/** The day's photographs as a row of thumbnails; `numbered` puts each one's number before its time. */
+export function Strip({ s, numbered }: { s: EarthDay; numbered?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   // Keep the current frame in view by scrolling the strip itself, never the page.
   useEffect(() => {
@@ -221,11 +221,13 @@ export function Strip({ s, label }: { s: EarthDay; label?: (i: number, time: str
             className={i === s.idx ? 'thumb on' : 'thumb'}
             onClick={() => s.goTo(i)}
             // The spoken name starts with the words shown under the thumbnail.
-            aria-label={`${label ? String(i + 1).padStart(2, '0') + ' ' : ''}${fmtTime(f.time)} UTC, photograph ${i + 1} of ${s.frames.length}`}
+            aria-label={`${numbered ? pad(i + 1) + ' ' : ''}${fmtTime(f.time)} UTC, photograph ${i + 1} of ${s.frames.length}`}
             aria-current={i === s.idx}
           >
-            <img src={f.thumb} alt="" width="120" height="120" decoding="async" />
-            <span>{label ? label(i, fmtTime(f.time)) : fmtTime(f.time)}</span>
+            <img src={f.thumb} alt="" width="120" height="120" decoding="async" loading="lazy" />
+            <span>
+              {numbered && <b>{pad(i + 1)}</b>} {fmtTime(f.time)}
+            </span>
           </button>
         ))}
     </div>
@@ -244,7 +246,7 @@ export function Chips({ s }: { s: EarthDay }) {
             key={id}
             className="chip"
             data-cat={id}
-            style={cssVar(style.color)}
+            style={kindColor(id)}
             onClick={() => s.toggleCategory(id)}
             aria-pressed={!off}
           >
@@ -286,7 +288,7 @@ export function EventList({ s }: { s: EarthDay }) {
               onClick={() => s.focusEvent(event)}
               aria-pressed={isSel}
               data-cat={event.category}
-              style={cssVar(categoryStyle(event.category).color)}
+              style={kindColor(event.category)}
             >
               <i />
               <span>{event.title}</span>

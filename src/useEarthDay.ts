@@ -4,6 +4,7 @@ import { DAYS, type See } from './days'
 import { LATELY_CATEGORIES, LATELY_DAYS, newestFirst, pickRecent, withPicked, type Recent } from './lib/lately'
 import { fetchAlerts } from './lib/gdacs'
 import { fetchEvents, positionAt, type NaturalEvent } from './lib/eonet'
+import { fmtLongDate } from './lib/format'
 
 export const EVENT_WINDOW_DAYS = 7
 const FRAME_MS = 260
@@ -22,18 +23,6 @@ export function snapToAvailable(dates: string[], wanted: string): string {
   }
   return found
 }
-
-export const fmtTime = (d: Date) => d.toISOString().slice(11, 16)
-export const fmtLongDate = (date: string) =>
-  new Date(date + 'T00:00:00Z').toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  })
-export const fmtCoord = (lat: number, lon: number) =>
-  `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`
-export const fmtKm = (km: number) => `${Math.round(km).toLocaleString('en-US')} km`
 
 const pathThrough = (frame: Frame, pts: [number, number][]) => {
   let d = ''
